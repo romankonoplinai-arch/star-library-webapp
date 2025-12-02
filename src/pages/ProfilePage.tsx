@@ -30,6 +30,8 @@ export function ProfilePage() {
   const birthPlace = useUserStore((s) => s.birthPlace)
   const subscriptionTier = useUserStore((s) => s.subscriptionTier)
   const defaultCharacter = useUserStore((s) => s.defaultCharacter)
+  const totalHoroscopes = useUserStore((s) => s.totalHoroscopes)
+  const totalActiveDays = useUserStore((s) => s.totalActiveDays)
   const setCharacter = useUserStore((s) => s.setCharacter)
   const setBirthData = useUserStore((s) => s.setBirthData)
 
@@ -280,11 +282,11 @@ export function ProfilePage() {
                 <p className="text-xs text-muted-gray">Раскладов</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-accent-purple">0</p>
+                <p className="text-2xl font-bold text-accent-purple">{totalHoroscopes}</p>
                 <p className="text-xs text-muted-gray">Гороскопов</p>
               </div>
               <div>
-                <p className="text-2xl font-bold">0</p>
+                <p className="text-2xl font-bold">{totalActiveDays}</p>
                 <p className="text-xs text-muted-gray">Дней</p>
               </div>
             </div>
