@@ -162,20 +162,9 @@ export function NatalChartPage() {
         {/* Big Three */}
         <motion.div variants={staggerItem}>
           <GlassCard className="p-3">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm text-mystical-gold font-semibold">
-                Большая тройка
-              </h2>
-              <button
-                onClick={() => {
-                  haptic.medium()
-                  // TODO: Open full analysis modal
-                }}
-                className="text-xs text-accent-purple hover:underline"
-              >
-                Полный разбор →
-              </button>
-            </div>
+            <p className="text-[10px] text-muted-gray text-center mb-2">
+              Кто вы внутри (☉) • Как чувствуете (☽) • Как выглядите (⬆)
+            </p>
             <div className="grid grid-cols-3 gap-2 text-center">
               <div className="flex flex-col items-center">
                 <span className="text-xl">{sunSign?.icon}</span>
@@ -190,10 +179,25 @@ export function NatalChartPage() {
               <div className="flex flex-col items-center">
                 <span className="text-xl">{ascSign?.icon}</span>
                 <p className="text-[11px] font-semibold mt-0.5">{ascSign?.nameRu}</p>
-                <p className="text-[10px] text-muted-gray">⬆ Асц</p>
+                <p className="text-[10px] text-muted-gray">⬆ Асцендент</p>
               </div>
             </div>
           </GlassCard>
+        </motion.div>
+
+        {/* Full Analysis Button */}
+        <motion.div variants={staggerItem}>
+          <button
+            onClick={() => {
+              haptic.medium()
+              // TODO: Open full analysis modal
+            }}
+            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-mystical-gold/20 to-accent-purple/20 border border-mystical-gold/30 hover:border-mystical-gold/50 transition-colors"
+          >
+            <span className="text-sm font-semibold text-mystical-gold">
+              ✨ Получить подробный разбор
+            </span>
+          </button>
         </motion.div>
 
         {/* SVG Chart */}
