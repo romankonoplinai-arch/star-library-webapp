@@ -34,13 +34,17 @@ export function ProfilePage() {
   const setBirthData = useUserStore((s) => s.setBirthData)
 
   const [showBirthEditor, setShowBirthEditor] = useState(false)
+  const [showNameEditor, setShowNameEditor] = useState(false)
+  const [editName, setEditName] = useState(firstName)
   const [editBirthDate, setEditBirthDate] = useState(birthDate || '')
   const [editBirthPlace, setEditBirthPlace] = useState(birthPlace || '')
   const [editBirthTime, setEditBirthTime] = useState('')
   const [isSaving, setIsSaving] = useState(false)
 
   useBackButton(() => {
-    if (showBirthEditor) {
+    if (showNameEditor) {
+      setShowNameEditor(false)
+    } else if (showBirthEditor) {
       setShowBirthEditor(false)
     } else {
       navigate('/')
@@ -57,6 +61,31 @@ export function ProfilePage() {
   const handleUpgrade = () => {
     haptic.medium()
     // TODO: открыть paywall
+  }
+
+  const handleEditName = () => {
+    haptic.light()
+    setEditName(firstName)
+    setShowNameEditor(true)
+  }
+
+  const handleSaveName = async () => {
+    if (!editName.trim()) return
+
+    haptic.medium()
+    setIsSaving(true)
+
+    try {
+      await api.fetch('/user/update-name', {
+        method: 'POST',
+        body: JSON.stringify({ first_name: editName.trim() }),
+      })
+
+      useUserStore.setState({ firstName: editName.trim() })
+      setShowNameEditor(false)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleEditBirthData = () => {
@@ -137,7 +166,15 @@ export function ProfilePage() {
                 {firstName.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1">
-                <h2 className="text-lg font-semibold">{firstName}</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">{firstName}</h2>
+                  <button
+                    onClick={handleEditName}
+                    className="text-xs text-accent-purple hover:underline"
+                  >
+                    Изменить
+                  </button>
+                </div>
                 <div className="flex items-center gap-2">
                   <span>{tierInfo.badge}</span>
                   <span className={`text-sm ${tierInfo.color}`}>{tierInfo.name}</span>
@@ -162,7 +199,7 @@ export function ProfilePage() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-gray">Дата</span>
-                <span>{birthDate || 'Не указана'}</span>
+                <span>{birthDate ? birthDate.split('T')[0] : 'Не указана'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-gray">Место</span>
@@ -254,6 +291,69 @@ export function ProfilePage() {
           </GlassCard>
         </motion.div>
       </motion.div>
+
+      {/* Name Editor Modal */}
+      <AnimatePresence>
+        {showNameEditor && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Backdrop */}
+            <motion.div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => setShowNameEditor(false)}
+            />
+
+            {/* Modal */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="relative w-full max-w-sm"
+            >
+              <GlassCard className="p-5">
+                <h2 className="text-xl font-semibold mb-4 text-center">
+                  Изменить имя
+                </h2>
+
+                <div>
+                  <label className="block text-sm text-muted-gray mb-1">
+                    Имя
+                  </label>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder="Введите ваше имя"
+                    className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-soft-white placeholder:text-muted-gray"
+                    maxLength={50}
+                  />
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowNameEditor(false)}
+                    className="flex-1 py-3 rounded-xl border border-white/20 text-muted-gray"
+                  >
+                    Отмена
+                  </button>
+                  <MagicButton
+                    onClick={handleSaveName}
+                    disabled={!editName.trim() || isSaving}
+                    className="flex-1"
+                  >
+                    {isSaving ? 'Сохранение...' : 'Сохранить'}
+                  </MagicButton>
+                </div>
+              </GlassCard>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Birth Data Editor Modal */}
       <AnimatePresence>
