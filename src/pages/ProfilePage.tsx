@@ -1,9 +1,11 @@
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { GlassCard, MagicButton } from '@/components/ui'
 import { useBackButton, useTelegram, useHaptic } from '@/hooks'
 import { useUserStore } from '@/stores'
-import { staggerContainer, staggerItem } from '@/lib/animations'
+import { staggerContainer, staggerItem, fadeUp } from '@/lib/animations'
 import { useNavigate } from 'react-router-dom'
+import { api } from '@/lib/api'
 
 const CHARACTERS = [
   { id: 'lunara', name: 'Лунара', emoji: '🌙', desc: 'Мудрая и нежная' },
@@ -29,8 +31,21 @@ export function ProfilePage() {
   const subscriptionTier = useUserStore((s) => s.subscriptionTier)
   const defaultCharacter = useUserStore((s) => s.defaultCharacter)
   const setCharacter = useUserStore((s) => s.setCharacter)
+  const setBirthData = useUserStore((s) => s.setBirthData)
 
-  useBackButton(() => navigate('/'))
+  const [showBirthEditor, setShowBirthEditor] = useState(false)
+  const [editBirthDate, setEditBirthDate] = useState(birthDate || '')
+  const [editBirthPlace, setEditBirthPlace] = useState(birthPlace || '')
+  const [editBirthTime, setEditBirthTime] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+
+  useBackButton(() => {
+    if (showBirthEditor) {
+      setShowBirthEditor(false)
+    } else {
+      navigate('/')
+    }
+  })
 
   const tierInfo = TIER_INFO[subscriptionTier]
 
@@ -42,6 +57,61 @@ export function ProfilePage() {
   const handleUpgrade = () => {
     haptic.medium()
     // TODO: открыть paywall
+  }
+
+  const handleEditBirthData = () => {
+    haptic.light()
+    setEditBirthDate(birthDate || '')
+    setEditBirthPlace(birthPlace || '')
+    setShowBirthEditor(true)
+  }
+
+  const handleSaveBirthData = async () => {
+    if (!editBirthDate || !editBirthPlace) return
+
+    haptic.medium()
+    setIsSaving(true)
+
+    try {
+      // Геокодируем место
+      const geoResponse = await api.fetch<{
+        success: boolean
+        latitude: number
+        longitude: number
+        timezone: string
+        display_name: string
+      }>('/natal-chart/geocode', {
+        method: 'POST',
+        body: JSON.stringify({ place_name: editBirthPlace }),
+      })
+
+      // Сохраняем данные
+      await api.fetch('/natal-chart/save-birth-data', {
+        method: 'POST',
+        body: JSON.stringify({
+          birth_date: editBirthDate,
+          birth_time: editBirthTime || '12:00',
+          birth_place: geoResponse.display_name || editBirthPlace,
+          latitude: geoResponse.latitude,
+          longitude: geoResponse.longitude,
+          timezone: geoResponse.timezone,
+        }),
+      })
+
+      // Обновляем локальный store
+      setBirthData(editBirthDate, geoResponse.display_name || editBirthPlace, editBirthTime || null)
+
+      haptic.success()
+      setShowBirthEditor(false)
+    } catch (err) {
+      console.error('Failed to save birth data:', err)
+      haptic.error()
+      // Всё равно сохраняем локально
+      setBirthData(editBirthDate, editBirthPlace, editBirthTime || null)
+      setShowBirthEditor(false)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -83,8 +153,8 @@ export function ProfilePage() {
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-mystical-gold font-semibold">Данные рождения</h2>
               <button
-                onClick={() => haptic.light()}
-                className="text-xs text-accent-purple"
+                onClick={handleEditBirthData}
+                className="text-xs text-accent-purple hover:underline"
               >
                 Изменить
               </button>
@@ -96,7 +166,7 @@ export function ProfilePage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-gray">Место</span>
-                <span>{birthPlace || 'Не указано'}</span>
+                <span className="text-right max-w-[180px] truncate">{birthPlace || 'Не указано'}</span>
               </div>
             </div>
           </GlassCard>
@@ -184,6 +254,94 @@ export function ProfilePage() {
           </GlassCard>
         </motion.div>
       </motion.div>
+
+      {/* Birth Data Editor Modal */}
+      <AnimatePresence>
+        {showBirthEditor && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Backdrop */}
+            <motion.div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => setShowBirthEditor(false)}
+            />
+
+            {/* Modal */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="relative w-full max-w-sm"
+            >
+              <GlassCard className="p-5">
+                <h2 className="text-xl font-semibold mb-4 text-center">
+                  Данные рождения
+                </h2>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm text-muted-gray mb-1">
+                      Дата рождения
+                    </label>
+                    <input
+                      type="date"
+                      value={editBirthDate}
+                      onChange={(e) => setEditBirthDate(e.target.value)}
+                      className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-soft-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-muted-gray mb-1">
+                      Место рождения
+                    </label>
+                    <input
+                      type="text"
+                      value={editBirthPlace}
+                      onChange={(e) => setEditBirthPlace(e.target.value)}
+                      placeholder="Например: Москва"
+                      className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-soft-white placeholder:text-muted-gray"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-muted-gray mb-1">
+                      Время рождения (опционально)
+                    </label>
+                    <input
+                      type="time"
+                      value={editBirthTime}
+                      onChange={(e) => setEditBirthTime(e.target.value)}
+                      className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-soft-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowBirthEditor(false)}
+                    className="flex-1 py-3 rounded-xl border border-white/20 text-muted-gray"
+                  >
+                    Отмена
+                  </button>
+                  <MagicButton
+                    onClick={handleSaveBirthData}
+                    disabled={!editBirthDate || !editBirthPlace || isSaving}
+                    className="flex-1"
+                  >
+                    {isSaving ? 'Сохранение...' : 'Сохранить'}
+                  </MagicButton>
+                </div>
+              </GlassCard>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

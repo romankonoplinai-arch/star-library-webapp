@@ -144,7 +144,7 @@ class ApiClient {
     this.initData = initData
   }
 
-  private async fetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  async fetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const response = await fetch(`${API_BASE}${endpoint}`, {
       ...options,
       headers: {
