@@ -161,28 +161,36 @@ export function NatalChartPage() {
 
         {/* Big Three */}
         <motion.div variants={staggerItem}>
-          <GlassCard className="p-4">
-            <h2 className="text-mystical-gold font-semibold mb-1 text-center">
-              Большая тройка
-            </h2>
-            <p className="text-[11px] text-muted-gray text-center mb-3">
-              Кто вы внутри (☉) • Как чувствуете (☽) • Как выглядите (⬆)
-            </p>
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="p-2 bg-white/5 rounded-lg">
-                <span className="text-2xl">{sunSign?.icon}</span>
-                <p className="text-sm font-semibold mt-1">{sunSign?.nameRu}</p>
-                <p className="text-xs text-muted-gray">☉ Солнце</p>
+          <GlassCard className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm text-mystical-gold font-semibold">
+                Большая тройка
+              </h2>
+              <button
+                onClick={() => {
+                  haptic.medium()
+                  // TODO: Open full analysis modal
+                }}
+                className="text-xs text-accent-purple hover:underline"
+              >
+                Полный разбор →
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="flex flex-col items-center">
+                <span className="text-xl">{sunSign?.icon}</span>
+                <p className="text-[11px] font-semibold mt-0.5">{sunSign?.nameRu}</p>
+                <p className="text-[10px] text-muted-gray">☉ Солнце</p>
               </div>
-              <div className="p-2 bg-white/5 rounded-lg">
-                <span className="text-2xl">{moonSign?.icon}</span>
-                <p className="text-sm font-semibold mt-1">{moonSign?.nameRu}</p>
-                <p className="text-xs text-muted-gray">☽ Луна</p>
+              <div className="flex flex-col items-center">
+                <span className="text-xl">{moonSign?.icon}</span>
+                <p className="text-[11px] font-semibold mt-0.5">{moonSign?.nameRu}</p>
+                <p className="text-[10px] text-muted-gray">☽ Луна</p>
               </div>
-              <div className="p-2 bg-white/5 rounded-lg">
-                <span className="text-2xl">{ascSign?.icon}</span>
-                <p className="text-sm font-semibold mt-1">{ascSign?.nameRu}</p>
-                <p className="text-xs text-muted-gray">⬆ Асцендент</p>
+              <div className="flex flex-col items-center">
+                <span className="text-xl">{ascSign?.icon}</span>
+                <p className="text-[11px] font-semibold mt-0.5">{ascSign?.nameRu}</p>
+                <p className="text-[10px] text-muted-gray">⬆ Асц</p>
               </div>
             </div>
           </GlassCard>
