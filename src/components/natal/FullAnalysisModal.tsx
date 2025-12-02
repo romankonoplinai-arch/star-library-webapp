@@ -23,7 +23,7 @@ const PAGES = [
   },
   {
     title: 'Солнце: Ваша Суть',
-    content: (sun: string) => `
+    content: (sun: string, _moon?: string, _asc?: string) => `
       С Солнцем в ${sun}, вы обладаете уникальным набором качеств.
 
       Это не просто знак зодиака - это ваша жизненная миссия, то, что делает вас собой.
@@ -33,7 +33,7 @@ const PAGES = [
   },
   {
     title: 'Луна: Ваши Эмоции',
-    content: (moon: string) => `
+    content: (_sun: string, moon: string, _asc?: string) => `
       Луна в ${moon} раскрывает, что вам нужно для эмоционального комфорта.
 
       Это ваш внутренний ребёнок, который нуждается в заботе и понимании.
@@ -43,7 +43,7 @@ const PAGES = [
   },
   {
     title: 'Асцендент: Ваша Маска',
-    content: (asc: string) => `
+    content: (_sun: string, _moon: string, asc: string) => `
       Асцендент в ${asc} показывает, как вы входите в новые ситуации.
 
       Это ваш стиль, ваша "упаковка", первое впечатление.
@@ -53,7 +53,7 @@ const PAGES = [
   },
   {
     title: 'Рекомендации',
-    content: () => `
+    content: (_sun?: string, _moon?: string, _asc?: string) => `
       1. Изучайте свою карту глубже - каждая планета добавляет нюансы
 
       2. Наблюдайте за транзитами - они показывают текущие энергии
@@ -84,16 +84,7 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
   }
 
   const getContent = (page: typeof PAGES[0]) => {
-    if (page.title.includes('Солнце')) {
-      return page.content(sunSign)
-    } else if (page.title.includes('Луна')) {
-      return page.content(moonSign)
-    } else if (page.title.includes('Асцендент')) {
-      return page.content(ascSign)
-    } else if (page.title.includes('Тройка')) {
-      return page.content(sunSign, moonSign, ascSign)
-    }
-    return page.content()
+    return page.content(sunSign, moonSign, ascSign)
   }
 
   if (!isOpen) return null
