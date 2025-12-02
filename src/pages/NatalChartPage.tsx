@@ -6,6 +6,7 @@ import {
   HouseGrid,
   PlanetModal,
   HouseModal,
+  FullAnalysisModal,
   type PlanetData,
 } from '@/components/natal'
 import { GlassCard, LoadingSpinner } from '@/components/ui'
@@ -26,6 +27,7 @@ export function NatalChartPage() {
   const [activeTab, setActiveTab] = useState('planets')
   const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null)
   const [selectedHouse, setSelectedHouse] = useState<number | null>(null)
+  const [showFullAnalysis, setShowFullAnalysis] = useState(false)
   const [chartData, setChartData] = useState<NatalChartApiResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -155,7 +157,7 @@ export function NatalChartPage() {
           <button
             onClick={() => {
               haptic.medium()
-              // TODO: Open full analysis modal
+              setShowFullAnalysis(true)
             }}
             className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-mystical-gold/20 to-accent-purple/20 border border-mystical-gold/30 hover:border-mystical-gold/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
@@ -262,6 +264,15 @@ export function NatalChartPage() {
         house={selectedHouse}
         cusp={selectedHouseData?.cusp || ascendant}
         onClose={() => setSelectedHouse(null)}
+      />
+
+      {/* Full Analysis Modal */}
+      <FullAnalysisModal
+        isOpen={showFullAnalysis}
+        onClose={() => setShowFullAnalysis(false)}
+        sunSign={sunSign?.nameRu || ''}
+        moonSign={moonSign?.nameRu || ''}
+        ascSign={ascSign?.nameRu || ''}
       />
     </div>
   )
