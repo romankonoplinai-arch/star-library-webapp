@@ -1,5 +1,7 @@
 export { HomePage } from './HomePage'
 export { TarotPage } from './TarotPage'
+export { CelticCrossPage } from './CelticCrossPage'
+export { ThreeCardPage } from './ThreeCardPage'
 export { OnboardingPage } from './OnboardingPage'
 export { NatalChartPage } from './NatalChartPage'
 export { ProfilePage } from './ProfilePage'

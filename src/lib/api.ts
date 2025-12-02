@@ -102,26 +102,35 @@ export interface NatalChartResponse {
   }
 }
 
-export interface TarotCardResponse {
+export interface TarotCardData {
   id: number
   name: string
-  nameRu: string
-  imageUrl: string
+  name_ru: string
+  arcana: string
+  suit: string | null
   reversed: boolean
-  interpretation?: string
+  keywords: string[]
+  image_url: string
 }
 
-export interface CelticCrossResponse {
-  readingId: string
-  cards: Array<{
-    id: number
-    name: string
-    nameRu: string
-    imageUrl: string
-    reversed: boolean
-    position: number
-    positionName: string
-  }>
+export interface CardInSpread {
+  card: TarotCardData
+  position: number
+  position_name: string
+  position_meaning: string
+}
+
+export interface TarotDrawResponse {
+  success: boolean
+  spread_type: 'single' | 'three_card' | 'celtic_cross'
+  question: string | null
+  cards: CardInSpread[]
+}
+
+export interface TarotInterpretResponse {
+  success: boolean
+  interpretation: string
+  character: string
 }
 
 export interface AgentResponse {
@@ -178,14 +187,24 @@ class ApiClient {
   }
 
   // Tarot
-  async drawTarotCard(): Promise<TarotCardResponse> {
-    return this.fetch<TarotCardResponse>('/tarot/draw')
+  async drawTarotSpread(
+    spreadType: 'single' | 'three_card' | 'celtic_cross',
+    question?: string
+  ): Promise<TarotDrawResponse> {
+    return this.fetch<TarotDrawResponse>('/tarot/draw', {
+      method: 'POST',
+      body: JSON.stringify({ spread_type: spreadType, question }),
+    })
   }
 
-  async drawCelticCross(question?: string): Promise<CelticCrossResponse> {
-    return this.fetch<CelticCrossResponse>('/tarot/celtic-cross', {
+  async interpretTarotSpread(
+    cards: CardInSpread[],
+    question?: string,
+    character: string = 'lunara'
+  ): Promise<TarotInterpretResponse> {
+    return this.fetch<TarotInterpretResponse>('/tarot/interpret', {
       method: 'POST',
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ cards, question, character }),
     })
   }
 

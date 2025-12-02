@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { HomePage, TarotPage, NatalChartPage, ProfilePage } from '@/pages'
+import { CelticCrossPage } from '@/pages/CelticCrossPage'
+import { ThreeCardPage } from '@/pages/ThreeCardPage'
 import { Navigation } from '@/components/Navigation'
 import { useTelegram } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -50,6 +52,8 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/tarot" element={<TarotPage />} />
+        <Route path="/celtic-cross" element={<CelticCrossPage />} />
+        <Route path="/three-card" element={<ThreeCardPage />} />
         <Route path="/natal" element={<NatalChartPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Routes>

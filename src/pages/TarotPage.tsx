@@ -40,13 +40,15 @@ export function TarotPage() {
   }
 
   const handleCelticCross = () => {
-    if (!isPremium()) {
-      haptic.warning()
-      // TODO: show paywall
-      return
-    }
     haptic.light()
-    // TODO: navigate to celtic cross
+    // Navigate to Celtic Cross page
+    window.location.href = '/celtic-cross'
+  }
+
+  const handleThreeCard = () => {
+    haptic.light()
+    // Navigate to Three Card page
+    window.location.href = '/three-card'
   }
 
   return (
@@ -134,7 +136,7 @@ export function TarotPage() {
 
         {/* Past-Present-Future */}
         <motion.div variants={staggerItem}>
-          <GlassCard hoverable>
+          <GlassCard hoverable onClick={handleThreeCard}>
             <div className="flex items-center gap-4">
               <span className="text-3xl">⏳</span>
               <div>
