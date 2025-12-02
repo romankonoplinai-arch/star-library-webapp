@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { TarotCard } from '@/components/tarot'
 import { GlassCard, MagicButton } from '@/components/ui'
 import { useHaptic, useBackButton } from '@/hooks'
@@ -16,13 +17,14 @@ const DEMO_CARD = {
 }
 
 export function TarotPage() {
+  const navigate = useNavigate()
   const haptic = useHaptic()
   const isPremium = useUserStore((s) => s.isPremium)
   const [drawnCard, setDrawnCard] = useState<typeof DEMO_CARD | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
 
   useBackButton(() => {
-    // TODO: navigate back
+    navigate('/')
   })
 
   const handleDrawCard = () => {
@@ -41,14 +43,12 @@ export function TarotPage() {
 
   const handleCelticCross = () => {
     haptic.light()
-    // Navigate to Celtic Cross page
-    window.location.href = '/celtic-cross'
+    navigate('/celtic-cross')
   }
 
   const handleThreeCard = () => {
     haptic.light()
-    // Navigate to Three Card page
-    window.location.href = '/three-card'
+    navigate('/three-card')
   }
 
   return (
