@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { GlassCard } from '@/components/ui'
+import { GlassCard, LoadingSpinner } from '@/components/ui'
+import { api } from '@/lib/api'
+import { useUserStore } from '@/stores'
 
 interface FullAnalysisModalProps {
   isOpen: boolean
@@ -68,9 +70,84 @@ const PAGES = [
 export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign }: FullAnalysisModalProps) {
   const [currentPage, setCurrentPage] = useState(0)
   const [direction, setDirection] = useState(0)
+  const [aiInterpretation, setAiInterpretation] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [parsedPages, setParsedPages] = useState<{ title: string; content: string }[]>([])
+  const defaultCharacter = useUserStore((s) => s.defaultCharacter)
+
+  // Load AI interpretation when modal opens
+  useEffect(() => {
+    if (!isOpen || aiInterpretation) return
+
+    const loadInterpretation = async () => {
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const response = await api.interpretNatalChart(
+          sunSign,
+          moonSign,
+          ascSign,
+          defaultCharacter
+        )
+
+        setAiInterpretation(response.interpretation)
+
+        // Parse AI response into 5 pages
+        const pages = parseAiInterpretation(response.interpretation)
+        setParsedPages(pages)
+      } catch (err: any) {
+        console.error('Failed to load AI interpretation:', err)
+        setError(err.message || 'Не удалось загрузить толкование')
+
+        // Fallback to static content
+        setParsedPages(PAGES.map(p => ({
+          title: p.title,
+          content: p.content(sunSign, moonSign, ascSign)
+        })))
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadInterpretation()
+  }, [isOpen, sunSign, moonSign, ascSign, defaultCharacter, aiInterpretation])
+
+  const parseAiInterpretation = (text: string): { title: string; content: string }[] => {
+    // Try to split by "Страница N" pattern
+    const pagePattern = /Страница \d+ - "([^"]+)":\s*([\s\S]*?)(?=Страница \d+|$)/g
+    const matches = [...text.matchAll(pagePattern)]
+
+    if (matches.length >= 5) {
+      return matches.slice(0, 5).map(match => ({
+        title: match[1],
+        content: match[2].trim()
+      }))
+    }
+
+    // Fallback: split by titles from PAGES
+    const titles = PAGES.map(p => p.title)
+    const pages = titles.map((title, i) => {
+      const nextTitle = i < titles.length - 1 ? titles[i + 1] : null
+      const startIdx = text.indexOf(title)
+
+      if (startIdx === -1) {
+        return { title, content: '' }
+      }
+
+      const contentStart = startIdx + title.length
+      const contentEnd = nextTitle ? text.indexOf(nextTitle, contentStart) : text.length
+      const content = text.slice(contentStart, contentEnd).trim()
+
+      return { title, content }
+    })
+
+    return pages
+  }
 
   const nextPage = () => {
-    if (currentPage < PAGES.length - 1) {
+    if (currentPage < parsedPages.length - 1) {
       setDirection(1)
       setCurrentPage(currentPage + 1)
     }
@@ -83,13 +160,9 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
     }
   }
 
-  const getContent = (page: typeof PAGES[0]) => {
-    return page.content(sunSign, moonSign, ascSign)
-  }
-
   if (!isOpen) return null
 
-  const currentPageData = PAGES[currentPage]
+  const currentPageData = parsedPages[currentPage] || { title: '', content: '' }
 
   const pageVariants = {
     enter: (direction: number) => ({
@@ -142,68 +215,83 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
 
                 {/* Page indicator */}
                 <div className="absolute top-4 left-4 text-xs text-muted-gray">
-                  {currentPage + 1} / {PAGES.length}
+                  {parsedPages.length > 0 && `${currentPage + 1} / ${parsedPages.length}`}
                 </div>
 
-                {/* Page content with flip animation */}
-                <AnimatePresence initial={false} custom={direction}>
-                  <motion.div
-                    key={currentPage}
-                    custom={direction}
-                    variants={pageVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={{
-                      x: { type: 'spring', stiffness: 300, damping: 30 },
-                      opacity: { duration: 0.2 },
-                      rotateY: { duration: 0.5 },
-                    }}
-                    className="min-h-[400px] flex flex-col"
-                  >
-                    {/* Title */}
-                    <h2 className="text-2xl font-display font-bold text-mystical-gold mb-4 text-center">
-                      {currentPageData.title}
-                    </h2>
-
-                    {/* Content */}
-                    <div className="flex-1 overflow-y-auto">
-                      <p className="text-soft-white leading-relaxed whitespace-pre-line">
-                        {getContent(currentPageData)}
-                      </p>
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-
-                {/* Navigation */}
-                <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
-                  <button
-                    onClick={prevPage}
-                    disabled={currentPage === 0}
-                    className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    ← Назад
-                  </button>
-
-                  <div className="flex gap-1">
-                    {PAGES.map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-2 h-2 rounded-full transition-colors ${
-                          i === currentPage ? 'bg-mystical-gold' : 'bg-white/20'
-                        }`}
-                      />
-                    ))}
+                {/* Loading state */}
+                {isLoading ? (
+                  <div className="min-h-[400px] flex flex-col items-center justify-center">
+                    <LoadingSpinner size="lg" />
+                    <p className="text-muted-gray mt-4">Генерируем ваше персональное толкование...</p>
                   </div>
+                ) : error ? (
+                  <div className="min-h-[400px] flex flex-col items-center justify-center">
+                    <p className="text-red-400 mb-4">{error}</p>
+                    <p className="text-muted-gray text-sm">Показываем базовое толкование</p>
+                  </div>
+                ) : parsedPages.length > 0 ? (
+                  <>
+                    {/* Page content with flip animation */}
+                    <AnimatePresence initial={false} custom={direction}>
+                      <motion.div
+                        key={currentPage}
+                        custom={direction}
+                        variants={pageVariants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{
+                          x: { type: 'spring', stiffness: 300, damping: 30 },
+                          opacity: { duration: 0.2 },
+                          rotateY: { duration: 0.5 },
+                        }}
+                        className="min-h-[400px] flex flex-col"
+                      >
+                        {/* Title */}
+                        <h2 className="text-2xl font-display font-bold text-mystical-gold mb-4 text-center">
+                          {currentPageData.title}
+                        </h2>
 
-                  <button
-                    onClick={nextPage}
-                    disabled={currentPage === PAGES.length - 1}
-                    className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Далее →
-                  </button>
-                </div>
+                        {/* Content */}
+                        <div className="flex-1 overflow-y-auto">
+                          <p className="text-soft-white leading-relaxed whitespace-pre-line">
+                            {currentPageData.content}
+                          </p>
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
+
+                    {/* Navigation */}
+                    <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
+                      <button
+                        onClick={prevPage}
+                        disabled={currentPage === 0}
+                        className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        ← Назад
+                      </button>
+
+                      <div className="flex gap-1">
+                        {parsedPages.map((_, i) => (
+                          <div
+                            key={i}
+                            className={`w-2 h-2 rounded-full transition-colors ${
+                              i === currentPage ? 'bg-mystical-gold' : 'bg-white/20'
+                            }`}
+                          />
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={nextPage}
+                        disabled={currentPage === parsedPages.length - 1}
+                        className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Далее →
+                      </button>
+                    </div>
+                  </>
+                ) : null}
               </GlassCard>
             </motion.div>
           </div>

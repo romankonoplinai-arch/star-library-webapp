@@ -208,6 +208,24 @@ class ApiClient {
     })
   }
 
+  // Natal Chart AI Interpretation
+  async interpretNatalChart(
+    sunSign: string,
+    moonSign: string,
+    ascSign: string,
+    character: string = 'lunara'
+  ): Promise<{ success: boolean; interpretation: string; character: string }> {
+    return this.fetch('/natal-chart/interpret', {
+      method: 'POST',
+      body: JSON.stringify({
+        sun_sign: sunSign,
+        moon_sign: moonSign,
+        asc_sign: ascSign,
+        character,
+      }),
+    })
+  }
+
   // AI Agent
   async sendAgentMessage(message: string, character: string = 'lunara'): Promise<AgentResponse> {
     return this.fetch<AgentResponse>('/agent/chat', {
