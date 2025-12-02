@@ -15,37 +15,7 @@ import { staggerContainer, staggerItem } from '@/lib/animations'
 import { useNavigate } from 'react-router-dom'
 import { ZODIAC_SIGNS, getSignFromDegree } from '@/lib/natalData'
 import { api, type NatalChartApiResponse } from '@/lib/api'
-
-// Mock data - заменить на API
-const MOCK_PLANETS: PlanetData[] = [
-  { name: 'Sun', degree: 105, house: 4, retrograde: false }, // Рак
-  { name: 'Moon', degree: 195, house: 7, retrograde: false }, // Весы
-  { name: 'Mercury', degree: 90, house: 4, retrograde: true }, // Рак
-  { name: 'Venus', degree: 45, house: 2, retrograde: false }, // Телец
-  { name: 'Mars', degree: 135, house: 5, retrograde: false }, // Лев
-  { name: 'Jupiter', degree: 255, house: 9, retrograde: false }, // Стрелец
-  { name: 'Saturn', degree: 285, house: 10, retrograde: true }, // Козерог
-  { name: 'Uranus', degree: 315, house: 11, retrograde: false }, // Водолей
-  { name: 'Neptune', degree: 282, house: 10, retrograde: true }, // Козерог
-  { name: 'Pluto', degree: 225, house: 8, retrograde: false }, // Скорпион
-]
-
-const MOCK_HOUSES = [
-  { house: 1, cusp: 0 },
-  { house: 2, cusp: 30 },
-  { house: 3, cusp: 60 },
-  { house: 4, cusp: 90 },
-  { house: 5, cusp: 120 },
-  { house: 6, cusp: 150 },
-  { house: 7, cusp: 180 },
-  { house: 8, cusp: 210 },
-  { house: 9, cusp: 240 },
-  { house: 10, cusp: 270 },
-  { house: 11, cusp: 300 },
-  { house: 12, cusp: 330 },
-]
-
-const MOCK_ASCENDANT = 0 // Овен
+import { useUserStore } from '@/stores'
 
 const TABS = [
   { id: 'planets', label: 'Планеты в Знаках' },
@@ -61,28 +31,33 @@ export function NatalChartPage() {
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
   const haptic = useHaptic()
+  const isVip = useUserStore((s) => s.isVip)
+  const birthDate = useUserStore((s) => s.birthDate)
 
   useBackButton(() => navigate('/'))
 
-  // Загрузка данных натальной карты
+  // Загрузка натальной карты
   useEffect(() => {
-    async function loadChart() {
-      try {
-        setLoading(true)
-        const data = await api.getNatalChartFull()
-        setChartData(data)
-        setError(null)
-      } catch (err) {
-        // Если нет VIP или нет данных - используем mock
-        console.log('Using mock data:', err)
-        setError(null)
-        setChartData(null)
-      } finally {
-        setLoading(false)
-      }
+    if (!birthDate) {
+      setLoading(false)
+      setError('Данные рождения не указаны')
+      return
     }
-    loadChart()
-  }, [])
+
+    api.getNatalChartFull()
+      .then((data) => {
+        if (data.has_data && data.chart) {
+          setChartData(data)
+        } else {
+          setError(data.message || 'Не удалось загрузить карту')
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load natal chart:', err)
+        setError('Ошибка загрузки натальной карты')
+      })
+      .finally(() => setLoading(false))
+  }, [birthDate])
 
   const handlePlanetSelect = (planetName: string) => {
     haptic.light()
@@ -103,20 +78,52 @@ export function NatalChartPage() {
     setSelectedHouse(null)
   }
 
-  // Преобразуем API данные в формат компонентов или используем mock
-  const planets: PlanetData[] = chartData?.chart?.planets?.map(p => ({
+  // Показываем загрузку
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="text-muted-gray mt-4">Рассчитываем вашу карту...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Показываем ошибку
+  if (error || !chartData?.chart) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <GlassCard className="p-6 text-center max-w-sm">
+          <span className="text-4xl mb-4 block">🌟</span>
+          <h2 className="text-xl font-semibold mb-2">Натальная карта</h2>
+          <p className="text-muted-gray mb-4">
+            {error || 'Для расчёта карты необходимы данные рождения'}
+          </p>
+          {!isVip() && (
+            <p className="text-sm text-mystical-gold">
+              Натальная карта доступна для VIP подписчиков
+            </p>
+          )}
+        </GlassCard>
+      </div>
+    )
+  }
+
+  // Преобразуем данные API
+  const planets: PlanetData[] = chartData.chart.planets.map(p => ({
     name: p.name,
     degree: p.longitude,
     house: p.house,
-    retrograde: false, // TODO: API должен вернуть это
-  })) || MOCK_PLANETS
+    retrograde: false,
+  }))
 
-  const houses = chartData?.chart?.houses?.map(h => ({
+  const houses = chartData.chart.houses.map(h => ({
     house: h.number,
     cusp: h.cusp_longitude,
-  })) || MOCK_HOUSES
+  }))
 
-  const ascendant = chartData?.chart?.angles?.ascendant?.longitude || MOCK_ASCENDANT
+  const ascendant = chartData.chart.angles.ascendant.longitude
 
   // Big Three
   const sun = planets.find((p) => p.name === 'Sun')
@@ -134,15 +141,6 @@ export function NatalChartPage() {
   const selectedHouseData = selectedHouse !== null
     ? houses.find((h) => h.house === selectedHouse) || { house: 0, cusp: ascendant }
     : null
-
-  // Показать загрузку
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size={48} />
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen px-4 py-6 pb-24">
@@ -190,7 +188,7 @@ export function NatalChartPage() {
           </GlassCard>
         </motion.div>
 
-        {/* SVG Chart (collapsed) */}
+        {/* SVG Chart */}
         <motion.div variants={staggerItem}>
           <GlassCard className="p-3">
             <NatalChartSVG

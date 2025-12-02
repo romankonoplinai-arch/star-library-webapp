@@ -29,9 +29,12 @@ interface ApiUserData {
   telegram_id: number
   first_name: string
   subscription_tier: string
-  birth_date?: string
-  birth_place?: string
-  birth_time?: string
+  birth_date?: string | null
+  birth_place?: string | null
+  birth_time?: string | null
+  birth_latitude?: number | null
+  birth_longitude?: number | null
+  birth_timezone?: string | null
   default_character?: string
 }
 

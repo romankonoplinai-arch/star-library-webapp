@@ -201,6 +201,24 @@ class ApiClient {
   async getSubscriptionStatus(): Promise<SubscriptionResponse> {
     return this.fetch<SubscriptionResponse>('/subscription/status')
   }
+
+  // User data (includes birth data)
+  async getUserData(): Promise<{
+    success: boolean
+    user: {
+      telegram_id: number
+      first_name: string
+      subscription_tier: string
+      birth_date: string | null
+      birth_time: string | null
+      birth_place: string | null
+      birth_latitude: number | null
+      birth_longitude: number | null
+      birth_timezone: string | null
+    }
+  }> {
+    return this.fetch('/user')
+  }
 }
 
 export const api = new ApiClient()
