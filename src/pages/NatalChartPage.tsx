@@ -150,13 +150,27 @@ export function NatalChartPage() {
         animate="visible"
         className="space-y-3"
       >
-        {/* Header */}
-        <motion.header variants={staggerItem} className="text-center mb-2">
-          <h1 className="text-3xl font-display font-bold">
-            <span className="bg-gradient-to-r from-mystical-gold via-accent-purple to-mystical-gold bg-[length:200%_auto] animate-shimmer bg-clip-text text-transparent">
-              ✦ Натальная карта ✦
-            </span>
-          </h1>
+        {/* Header - Interactive Book Button */}
+        <motion.header variants={staggerItem}>
+          <button
+            onClick={() => {
+              haptic.medium()
+              // TODO: Open full analysis modal
+            }}
+            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-mystical-gold/20 to-accent-purple/20 border border-mystical-gold/30 hover:border-mystical-gold/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-2xl">📖</span>
+              <h1 className="text-xl font-display font-bold">
+                <span className="bg-gradient-to-r from-mystical-gold via-accent-purple to-mystical-gold bg-[length:200%_auto] animate-shimmer bg-clip-text text-transparent">
+                  Натальная карта
+                </span>
+              </h1>
+            </div>
+            <p className="text-[10px] text-muted-gray mt-1">
+              Нажмите, чтобы открыть подробный разбор
+            </p>
+          </button>
         </motion.header>
 
         {/* Big Three */}
@@ -183,21 +197,6 @@ export function NatalChartPage() {
               </div>
             </div>
           </GlassCard>
-        </motion.div>
-
-        {/* Full Analysis Button */}
-        <motion.div variants={staggerItem}>
-          <button
-            onClick={() => {
-              haptic.medium()
-              // TODO: Open full analysis modal
-            }}
-            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-mystical-gold/20 to-accent-purple/20 border border-mystical-gold/30 hover:border-mystical-gold/50 transition-colors"
-          >
-            <span className="text-sm font-semibold text-mystical-gold">
-              ✨ Получить подробный разбор
-            </span>
-          </button>
         </motion.div>
 
         {/* SVG Chart */}
