@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { HomePage, TarotPage, OnboardingPage, NatalChartPage, ProfilePage } from '@/pages'
+import { HomePage, TarotPage, NatalChartPage, ProfilePage } from '@/pages'
 import { Navigation } from '@/components/Navigation'
 import { useTelegram } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -8,12 +8,8 @@ import { api } from '@/lib/api'
 import { LoadingSpinner } from '@/components/ui'
 
 function AppContent() {
-  const { user: tgUser, isReady: isTelegramReady, initDataRaw } = useTelegram()
+  const { isReady: isTelegramReady, initDataRaw } = useTelegram()
   const syncFromApi = useUserStore((s) => s.syncFromApi)
-  const isLoaded = useUserStore((s) => s.isLoaded)
-  const birthDate = useUserStore((s) => s.birthDate)
-  const setBirthData = useUserStore((s) => s.setBirthData)
-  const [loadError, setLoadError] = useState(false)
 
   // Инициализация: передать initData в API и загрузить данные
   useEffect(() => {
@@ -24,7 +20,7 @@ function AppContent() {
       api.setInitData(initDataRaw)
     }
 
-    // Загружаем данные пользователя с backend
+    // Загружаем данные пользователя с backend (не блокирует UI)
     api.getUserData()
       .then((response) => {
         if (response.success && response.user) {
@@ -33,12 +29,12 @@ function AppContent() {
       })
       .catch((err) => {
         console.error('Failed to load user data:', err)
-        setLoadError(true)
       })
   }, [isTelegramReady, initDataRaw, syncFromApi])
 
-  // Показываем загрузку пока не получили данные с backend
-  if (!isLoaded && !loadError) {
+  // Показываем загрузку только если Telegram не готов
+  // Не блокируем UI если API не ответил - данные уже в БД
+  if (!isTelegramReady) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
@@ -46,21 +42,8 @@ function AppContent() {
     )
   }
 
-  // Если нет данных рождения — показываем онбординг
-  const needsOnboarding = !birthDate && !loadError
-
-  const handleOnboardingComplete = (data: {
-    birthDate: string
-    birthPlace: string
-    birthTime: string | null
-  }) => {
-    setBirthData(data.birthDate, data.birthPlace, data.birthTime)
-    // TODO: отправить данные на backend через api.saveBirthData
-  }
-
-  if (needsOnboarding) {
-    return <OnboardingPage onComplete={handleOnboardingComplete} />
-  }
+  // TODO: онбординг можно включить позже через Профиль
+  // Сейчас пропускаем - данные рождения уже в БД
 
   return (
     <>
