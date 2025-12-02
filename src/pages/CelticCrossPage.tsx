@@ -4,7 +4,20 @@ import { CelticCrossLayout } from '@/components/tarot'
 import { GlassCard, MagicButton, LoadingSpinner } from '@/components/ui'
 import { useHaptic, useBackButton } from '@/hooks'
 import { useNavigate } from 'react-router-dom'
-import { api, type CardInSpread } from '@/lib/api'
+import { api, type CardInSpread as ApiCardInSpread } from '@/lib/api'
+
+// Component card type (camelCase for UI components)
+interface CardInSpread {
+  card: {
+    id: number
+    name: string
+    nameRu: string
+    imageUrl: string
+    reversed: boolean
+  }
+  position: number
+  positionName: string
+}
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/animations'
 import { useUserStore } from '@/stores'
 
@@ -36,12 +49,26 @@ export function CelticCrossPage() {
 
     try {
       const response = await api.drawTarotSpread('celtic_cross', question || undefined)
-      setCards(response.cards)
 
-      // Auto-interpret
+      // Convert API response to component format (snake_case to camelCase)
+      const convertedCards = response.cards.map(c => ({
+        card: {
+          id: c.card.id,
+          name: c.card.name,
+          nameRu: c.card.name_ru,
+          imageUrl: c.card.image_url,
+          reversed: c.card.reversed,
+        },
+        position: c.position,
+        positionName: c.position_name,
+      }))
+
+      setCards(convertedCards)
+
+      // Auto-interpret (use original API format)
       setIsInterpreting(true)
       const interpretResponse = await api.interpretTarotSpread(
-        response.cards,
+        response.cards, // Use original snake_case format for API
         question || undefined,
         defaultCharacter
       )
