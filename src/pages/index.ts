@@ -1,0 +1,5 @@
+export { HomePage } from './HomePage'
+export { TarotPage } from './TarotPage'
+export { OnboardingPage } from './OnboardingPage'
+export { NatalChartPage } from './NatalChartPage'
+export { ProfilePage } from './ProfilePage'
