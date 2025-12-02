@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'https://star-library-bot.railway.app/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'https://star-library-bot-production.up.railway.app/api'
 
 // Types
 export interface DailyHubResponse {
