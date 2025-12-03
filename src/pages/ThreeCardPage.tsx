@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { TarotCard } from '@/components/tarot'
 import { GlassCard, MagicButton, LoadingSpinner } from '@/components/ui'
-import { useHaptic, useBackButton } from '@/hooks'
+import { useHaptic, useBackButton, useShare } from '@/hooks'
 import { useNavigate } from 'react-router-dom'
 import { api, type CardInSpread } from '@/lib/api'
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/animations'
@@ -12,6 +12,7 @@ import { getTarotCardImage } from '@/lib/tarot'
 export function ThreeCardPage() {
   const navigate = useNavigate()
   const haptic = useHaptic()
+  const { share } = useShare()
   const defaultCharacter = useUserStore((s) => s.defaultCharacter)
 
   const [cards, setCards] = useState<CardInSpread[] | null>(null)
@@ -171,8 +172,18 @@ export function ThreeCardPage() {
               </GlassCard>
             </motion.div>
 
-            {/* Reset Button */}
-            <motion.div variants={staggerItem} className="text-center">
+            {/* Share and Reset Buttons */}
+            <motion.div variants={staggerItem} className="flex gap-4 justify-center">
+              <button
+                onClick={() => {
+                  haptic.light()
+                  const cardsText = cards.map((c) => c.card.name_ru).join(', ')
+                  share(`Мой расклад Таро: ${cardsText} 🔮`)
+                }}
+                className="text-mystical-gold hover:underline flex items-center gap-1"
+              >
+                <span>↗️</span> Поделиться
+              </button>
               <button
                 onClick={handleReset}
                 className="text-accent-purple hover:underline"

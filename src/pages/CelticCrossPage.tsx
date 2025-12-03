@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CelticCrossLayout } from '@/components/tarot'
 import { GlassCard, MagicButton, LoadingSpinner } from '@/components/ui'
-import { useHaptic, useBackButton } from '@/hooks'
+import { useHaptic, useBackButton, useShare } from '@/hooks'
 import { useNavigate } from 'react-router-dom'
 import { api, type CardInSpread as ApiCardInSpread } from '@/lib/api'
 
@@ -25,6 +25,7 @@ import { getTarotCardImage } from '@/lib/tarot'
 export function CelticCrossPage() {
   const navigate = useNavigate()
   const haptic = useHaptic()
+  const { share } = useShare()
   const isPremium = useUserStore((s) => s.isPremium)
   const defaultCharacter = useUserStore((s) => s.defaultCharacter)
 
@@ -190,7 +191,16 @@ export function CelticCrossPage() {
             </motion.div>
 
             {/* Reset Button */}
-            <motion.div variants={staggerItem} className="text-center">
+            <motion.div variants={staggerItem} className="flex gap-4 justify-center">
+              <button
+                onClick={() => {
+                  haptic.light()
+                  share(`Мой расклад Кельтский Крест 🔮`)
+                }}
+                className="text-mystical-gold hover:underline flex items-center gap-1"
+              >
+                <span>↗️</span> Поделиться
+              </button>
               <button
                 onClick={handleReset}
                 className="text-accent-purple hover:underline"
