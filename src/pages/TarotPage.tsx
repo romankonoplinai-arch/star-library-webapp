@@ -83,28 +83,16 @@ export function TarotPage() {
 
   return (
     <div className="min-h-screen px-4 py-6 pb-24">
-      <motion.header
-        className="mb-6"
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-      >
-        <h1 className="text-2xl font-display font-bold text-gradient">
-          🎴 Карты Судьбы
-        </h1>
-        <p className="text-muted-gray">Выбери свой расклад</p>
-      </motion.header>
-
       <motion.main
         className="space-y-6"
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
       >
-        {/* Карта дня */}
+        {/* Послание Звёзд */}
         <motion.div variants={staggerItem}>
           <GlassCard>
-            <h2 className="text-lg font-semibold mb-4">Карта дня</h2>
+            <h2 className="text-lg font-semibold mb-4">✨ Послание Звёзд</h2>
 
             <div className="flex flex-col items-center">
               {drawnCard ? (
