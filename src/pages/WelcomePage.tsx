@@ -13,12 +13,26 @@ export function WelcomePage({ onComplete }: WelcomePageProps) {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4">
-      {/* Cosmic Background */}
+      {/* Cosmic Background with AI Illustration */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#1a0033] via-[#2d004d] to-[#0a0e27]" />
 
-      {/* Floating Stars */}
+      {/* AI Generated Illustration */}
       <motion.div
-        className="absolute inset-0 opacity-60"
+        className="absolute inset-0 opacity-40"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.4 }}
+        transition={{ duration: 2 }}
+      >
+        <img
+          src="/welcome-illustration.webp"
+          alt="Cosmic Library Guardians"
+          className="w-full h-full object-cover object-center"
+        />
+      </motion.div>
+
+      {/* Floating Stars Overlay */}
+      <motion.div
+        className="absolute inset-0 opacity-30"
         animate={{
           backgroundPosition: ['0% 0%', '100% 100%'],
         }}
@@ -41,39 +55,6 @@ export function WelcomePage({ onComplete }: WelcomePageProps) {
         initial="hidden"
         animate="visible"
       >
-        {/* Characters - floating emoji */}
-        <div className="flex justify-center gap-4 mb-6 text-4xl">
-          <motion.span
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0 }}
-          >
-            🌙
-          </motion.span>
-          <motion.span
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
-          >
-            🔥
-          </motion.span>
-          <motion.span
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0.4 }}
-          >
-            🌑
-          </motion.span>
-          <motion.span
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
-          >
-            ✨
-          </motion.span>
-          <motion.span
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0.8 }}
-          >
-            🌌
-          </motion.span>
-        </div>
 
         {/* Main Card with Welcome Text */}
         <GlassCard className="backdrop-blur-xl">
