@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GlassCard, MagicButton } from '@/components/ui'
+import { AvatarSelector } from '@/components/profile'
 import { useBackButton, useTelegram, useHaptic } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { staggerContainer, staggerItem, fadeUp } from '@/lib/animations'
@@ -40,6 +41,8 @@ export function ProfilePage() {
 
   const [showBirthEditor, setShowBirthEditor] = useState(false)
   const [showNameEditor, setShowNameEditor] = useState(false)
+  const [showAvatarSelector, setShowAvatarSelector] = useState(false)
+  const [userAvatar, setUserAvatar] = useState('🌟')
   const [editName, setEditName] = useState(firstName)
   const [editBirthDate, setEditBirthDate] = useState(birthDate || '')
   const [editBirthPlace, setEditBirthPlace] = useState(birthPlace || '')
@@ -156,20 +159,30 @@ export function ProfilePage() {
         animate="visible"
         className="space-y-4"
       >
-        {/* Header */}
-        <motion.header variants={staggerItem} className="text-center mb-4">
-          <h1 className="text-2xl font-display font-bold text-gradient">
-            Профиль
-          </h1>
-        </motion.header>
-
         {/* User Info Card */}
         <motion.div variants={staggerItem}>
           <GlassCard className="p-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-mystical-gold to-accent-purple flex items-center justify-center text-2xl">
-                {firstName.charAt(0).toUpperCase()}
-              </div>
+              <motion.button
+                onClick={() => {
+                  haptic.medium()
+                  setShowAvatarSelector(true)
+                }}
+                whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }}
+                whileTap={{ scale: 0.95 }}
+                className="relative w-16 h-16 rounded-full bg-gradient-to-br from-mystical-gold to-accent-purple flex items-center justify-center text-3xl cursor-pointer"
+              >
+                {userAvatar}
+                {/* Edit indicator */}
+                <motion.div
+                  className="absolute -bottom-1 -right-1 w-5 h-5 bg-accent-purple rounded-full flex items-center justify-center text-white text-xs"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: 'spring' }}
+                >
+                  ✎
+                </motion.div>
+              </motion.button>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">{firstName}</h2>
@@ -463,6 +476,17 @@ export function ProfilePage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Avatar Selector Modal */}
+      <AvatarSelector
+        isOpen={showAvatarSelector}
+        onClose={() => setShowAvatarSelector(false)}
+        currentAvatar={userAvatar}
+        onSelect={(emoji) => {
+          setUserAvatar(emoji)
+          haptic.success()
+        }}
+      />
     </div>
   )
 }
