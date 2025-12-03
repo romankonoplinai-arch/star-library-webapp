@@ -34,11 +34,19 @@ const ALL_CARDS = [
   { id: 21, name: 'The World', nameRu: 'Мир' },
 ]
 
+interface DrawnCard {
+  id: number
+  name: string
+  nameRu: string
+  imageUrl: string
+  reversed: boolean
+}
+
 export function TarotPage() {
   const navigate = useNavigate()
   const haptic = useHaptic()
   const isPremium = useUserStore((s) => s.isPremium)
-  const [drawnCard, setDrawnCard] = useState<typeof DEMO_CARD | null>(null)
+  const [drawnCard, setDrawnCard] = useState<DrawnCard | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
 
   useBackButton(() => {
