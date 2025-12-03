@@ -12,7 +12,7 @@ const DEMO_CARD = {
   id: 0,
   name: 'The Fool',
   nameRu: 'Шут',
-  imageUrl: '/cards/major/00-fool.svg',
+  imageUrl: '/cards/major/fool.svg',
   reversed: false,
 }
 
