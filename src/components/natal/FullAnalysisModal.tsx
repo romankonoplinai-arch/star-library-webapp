@@ -241,10 +241,10 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-md"
+              className="relative w-full max-w-[90vw] md:max-w-2xl"
               style={{ perspective: 1000 }}
             >
-              <GlassCard className="p-6 max-h-[80vh] flex flex-col">
+              <GlassCard className="p-8 max-h-[75vh] flex flex-col">
                 {/* Close button */}
                 <button
                   onClick={onClose}
@@ -268,15 +268,15 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
                   <>
                     {/* Error notification if AI failed */}
                     {error && (
-                      <div className="mb-4 p-3 rounded-lg bg-mystical-gold/10 border border-mystical-gold/30">
-                        <p className="text-mystical-gold text-sm text-center">
-                          ✨ Показываем базовое толкование
+                      <div className="mb-3 p-2 rounded-lg bg-mystical-gold/10 border border-mystical-gold/30">
+                        <p className="text-mystical-gold text-xs text-center">
+                          🌙✨ Звёзды немного устали... Читаем классику астрологии! 📜
                         </p>
                       </div>
                     )}
 
                     {/* Page content with flip animation */}
-                    <div className="flex-1 overflow-y-auto min-h-0 mb-4">
+                    <div className="flex-1 flex flex-col min-h-0 mb-4">
                       <AnimatePresence initial={false} custom={direction}>
                         <motion.div
                           key={currentPage}
@@ -293,13 +293,13 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
                           className="h-full flex flex-col"
                         >
                           {/* Title */}
-                          <h2 className="text-2xl font-display font-bold text-mystical-gold mb-4 text-center flex-shrink-0">
+                          <h2 className="text-3xl md:text-4xl font-display font-bold text-mystical-gold mb-6 text-center flex-shrink-0">
                             {currentPageData.title}
                           </h2>
 
                           {/* Content */}
-                          <div className="flex-1 overflow-y-auto pr-2">
-                            <p className="text-soft-white leading-relaxed whitespace-pre-line">
+                          <div className="flex-1 flex items-center justify-center">
+                            <p className="text-soft-white text-lg md:text-xl leading-relaxed whitespace-pre-line text-center">
                               {currentPageData.content}
                             </p>
                           </div>
