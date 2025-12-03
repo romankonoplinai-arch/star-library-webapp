@@ -20,33 +20,7 @@ function AppContent() {
     setHasSeenWelcome(seen === 'true')
   }, [])
 
-  // DEV: Reset welcome screen on triple click anywhere (for testing)
-  useEffect(() => {
-    let clickCount = 0
-    let timeout: NodeJS.Timeout
-
-    const handleTripleClick = () => {
-      clickCount++
-      clearTimeout(timeout)
-
-      if (clickCount === 3) {
-        localStorage.removeItem('hasSeenWelcome')
-        setHasSeenWelcome(false)
-        clickCount = 0
-        console.log('✨ Welcome screen reset!')
-      }
-
-      timeout = setTimeout(() => {
-        clickCount = 0
-      }, 500)
-    }
-
-    document.addEventListener('click', handleTripleClick)
-    return () => {
-      document.removeEventListener('click', handleTripleClick)
-      clearTimeout(timeout)
-    }
-  }, [])
+  // DEV: Manual reset via console: localStorage.removeItem('hasSeenWelcome'); location.reload()
 
   // Инициализация: передать initData в API и загрузить данные
   useEffect(() => {
