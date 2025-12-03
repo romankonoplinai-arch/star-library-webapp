@@ -52,11 +52,35 @@ const CARD_FILENAME_MAP: Record<string, string> = {
  * Get correct image URL using PNG cards
  */
 export function getTarotCardImage(cardName: string, arcana: string = 'major'): string {
-  const filename = CARD_FILENAME_MAP[cardName]
+  // Try exact match first
+  let filename = CARD_FILENAME_MAP[cardName]
+
+  // If no match, try to generate filename from card name
   if (!filename) {
-    console.warn(`No filename mapping for card: ${cardName}`)
-    return `${import.meta.env.BASE_URL}cards/Cards-png/CardBacks.png?v=${__CACHE_VERSION__}`
+    console.warn(`No exact filename mapping for card: ${cardName}, trying fallback`)
+
+    // Remove "The " prefix and convert to PascalCase
+    const cleanName = cardName
+      .replace(/^The /i, '')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join('')
+
+    // Try to find the matching file by searching through known cards
+    const cardNumber = Object.entries(CARD_FILENAME_MAP).findIndex(([key]) =>
+      key.toLowerCase() === cardName.toLowerCase()
+    )
+
+    if (cardNumber >= 0) {
+      const paddedNumber = cardNumber.toString().padStart(2, '0')
+      filename = `${paddedNumber}-${cleanName}`
+      console.log(`Found fallback: ${filename}`)
+    } else {
+      console.error(`Could not find mapping for: ${cardName}`)
+      return `${import.meta.env.BASE_URL}cards/Cards-png/CardBacks.png?v=${__CACHE_VERSION__}`
+    }
   }
+
   return `${import.meta.env.BASE_URL}cards/Cards-png/${filename}.png?v=${__CACHE_VERSION__}`
 }
 
