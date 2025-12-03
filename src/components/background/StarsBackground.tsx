@@ -12,6 +12,7 @@ export function StarsBackground() {
       await loadSlim(engine) // Загружаем slim версию
     }).then(() => {
       setInit(true)
+      console.log('🌌 Stars initialized')
     })
   }, [])
 
