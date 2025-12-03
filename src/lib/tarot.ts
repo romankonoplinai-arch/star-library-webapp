@@ -10,9 +10,9 @@ export function getTarotCardImageUrl(cardName: string, arcana: string = 'major')
   // Remove "The " prefix and convert to lowercase
   const filename = cardName
     .toLowerCase()
-    .replace('the ', '')
+    .replace(/^the /i, '') // Remove "The " from start
     .replace(/ /g, '_') // Replace spaces with underscores
-    .replace(/[^a-z_]/g, '') // Remove non-letter characters except underscores
+    .replace(/[^a-z0-9_]/g, '') // Keep letters, numbers, underscores only
 
   return `/cards/${arcana}/${filename}.svg`
 }
