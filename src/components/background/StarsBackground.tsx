@@ -1,105 +1,62 @@
-import { useEffect, useMemo, useState } from 'react'
-import Particles, { initParticlesEngine } from '@tsparticles/react'
-import { loadSlim } from '@tsparticles/slim'
-import type { ISourceOptions } from '@tsparticles/engine'
-
-// Animated star background with tsParticles
+// Simple CSS-based star background (fallback without tsParticles)
 export function StarsBackground() {
-  const [init, setInit] = useState(false)
-
-  useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine) // Загружаем slim версию
-    }).then(() => {
-      setInit(true)
-      console.log('🌌 Stars initialized')
-    })
-  }, [])
-
-  const options: ISourceOptions = useMemo(
-    () => ({
-      background: {
-        color: {
-          value: 'transparent', // Прозрачный фон
-        },
-      },
-      fpsLimit: 60,
-      interactivity: {
-        events: {
-          onHover: {
-            enable: true,
-            mode: 'grab', // При наведении звёзды "притягиваются"
-          },
-        },
-        modes: {
-          grab: {
-            distance: 140,
-            links: {
-              opacity: 0.3,
-            },
-          },
-        },
-      },
-      particles: {
-        color: {
-          value: ['#ffd700', '#ffffff', '#7c3aed'], // Золотой, белый, фиолетовый
-        },
-        links: {
-          color: '#7c3aed', // Фиолетовые линии между звёздами
-          distance: 150,
-          enable: true,
-          opacity: 0.2,
-          width: 1,
-        },
-        move: {
-          direction: 'none',
-          enable: true,
-          outModes: {
-            default: 'bounce',
-          },
-          random: true, // Случайное движение
-          speed: 0.5, // Медленная скорость
-          straight: false,
-        },
-        number: {
-          density: {
-            enable: true,
-            area: 800,
-          },
-          value: 80, // Количество звёзд
-        },
-        opacity: {
-          value: { min: 0.3, max: 1.0 }, // Более яркие звёзды
-          animation: {
-            enable: true,
-            speed: 1,
-            sync: false,
-          },
-        },
-        shape: {
-          type: 'circle', // Круглые звёзды
-        },
-        size: {
-          value: { min: 2, max: 5 }, // Более крупные звёзды
-          animation: {
-            enable: true,
-            speed: 2,
-            sync: false,
-          },
-        },
-      },
-      detectRetina: true, // Поддержка retina экранов
-    }),
-    []
-  )
-
-  if (!init) return null
-
   return (
-    <Particles
-      id="tsparticles"
-      options={options}
-      className="fixed inset-0 -z-10" // Позади всего контента
-    />
+    <div className="fixed inset-0 -z-10 overflow-hidden">
+      {/* Звёздное небо через CSS */}
+      <div className="absolute inset-0 stars-layer-1"></div>
+      <div className="absolute inset-0 stars-layer-2"></div>
+      <div className="absolute inset-0 stars-layer-3"></div>
+
+      <style>{`
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 1; }
+        }
+
+        @keyframes moveStars {
+          from { transform: translateY(0); }
+          to { transform: translateY(-100px); }
+        }
+
+        .stars-layer-1 {
+          background-image:
+            radial-gradient(2px 2px at 20% 30%, white, transparent),
+            radial-gradient(2px 2px at 60% 70%, white, transparent),
+            radial-gradient(1px 1px at 50% 50%, white, transparent),
+            radial-gradient(1px 1px at 80% 10%, white, transparent),
+            radial-gradient(2px 2px at 90% 60%, white, transparent),
+            radial-gradient(1px 1px at 33% 80%, white, transparent),
+            radial-gradient(1px 1px at 15% 90%, white, transparent);
+          background-size: 200% 200%;
+          background-position: 0 0;
+          animation: twinkle 3s ease-in-out infinite;
+        }
+
+        .stars-layer-2 {
+          background-image:
+            radial-gradient(1px 1px at 10% 20%, #ffd700, transparent),
+            radial-gradient(2px 2px at 40% 40%, #ffd700, transparent),
+            radial-gradient(1px 1px at 70% 80%, #ffd700, transparent),
+            radial-gradient(1px 1px at 85% 50%, #ffd700, transparent),
+            radial-gradient(2px 2px at 25% 70%, #ffd700, transparent),
+            radial-gradient(1px 1px at 55% 15%, #ffd700, transparent);
+          background-size: 250% 250%;
+          background-position: 0 0;
+          animation: twinkle 4s ease-in-out infinite 0.5s;
+        }
+
+        .stars-layer-3 {
+          background-image:
+            radial-gradient(1px 1px at 30% 60%, #7c3aed, transparent),
+            radial-gradient(2px 2px at 65% 25%, #7c3aed, transparent),
+            radial-gradient(1px 1px at 45% 85%, #7c3aed, transparent),
+            radial-gradient(1px 1px at 75% 45%, #7c3aed, transparent),
+            radial-gradient(2px 2px at 12% 55%, #7c3aed, transparent);
+          background-size: 300% 300%;
+          background-position: 0 0;
+          animation: twinkle 5s ease-in-out infinite 1s;
+        }
+      `}</style>
+    </div>
   )
 }
