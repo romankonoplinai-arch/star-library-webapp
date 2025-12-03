@@ -2,9 +2,14 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
+const CACHE_VERSION = Date.now().toString()
+
 export default defineConfig({
   plugins: [react()],
   base: './',
+  define: {
+    '__CACHE_VERSION__': JSON.stringify(CACHE_VERSION)
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

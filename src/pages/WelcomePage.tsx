@@ -3,6 +3,8 @@ import { GlassCard, MagicButton } from '@/components/ui'
 import { useTelegram } from '@/hooks'
 import { fadeUp } from '@/lib/animations'
 
+declare const __CACHE_VERSION__: string
+
 interface WelcomePageProps {
   onComplete: () => void
 }
@@ -24,7 +26,7 @@ export function WelcomePage({ onComplete }: WelcomePageProps) {
         transition={{ duration: 2 }}
       >
         <img
-          src={`/welcome-illustration.webp?v=${Date.now()}`}
+          src={`/welcome-illustration.webp?v=${__CACHE_VERSION__}`}
           alt="Cosmic Library Guardians"
           className="w-full h-full object-cover object-center"
         />

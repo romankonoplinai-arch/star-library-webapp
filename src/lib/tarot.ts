@@ -2,6 +2,8 @@
  * Tarot utility functions
  */
 
+declare const __CACHE_VERSION__: string
+
 /**
  * Get image URL for a tarot card based on its name
  * Converts card name to filename (e.g., "The Fool" -> "fool.svg")
@@ -14,7 +16,7 @@ export function getTarotCardImageUrl(cardName: string, arcana: string = 'major')
     .replace(/ /g, '_') // Replace spaces with underscores
     .replace(/[^a-z0-9_]/g, '') // Keep letters, numbers, underscores only
 
-  return `/cards/${arcana}/${filename}.svg?v=${Date.now()}`
+  return `/cards/${arcana}/${filename}.svg?v=${__CACHE_VERSION__}`
 }
 
 /**
@@ -50,5 +52,5 @@ const CARD_FILENAME_MAP: Record<string, string> = {
  */
 export function getTarotCardImage(cardName: string, arcana: string = 'major'): string {
   const filename = CARD_FILENAME_MAP[cardName] || getTarotCardImageUrl(cardName, arcana).split('/').pop()?.replace('.svg', '').split('?')[0]
-  return `/cards/${arcana}/${filename}.svg?v=${Date.now()}`
+  return `/cards/${arcana}/${filename}.svg?v=${__CACHE_VERSION__}`
 }
