@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { GlassCard, LoadingSpinner } from '@/components/ui'
 import { api } from '@/lib/api'
 import { useUserStore } from '@/stores'
+import { useShare, useHaptic } from '@/hooks'
 
 interface FullAnalysisModalProps {
   isOpen: boolean
@@ -108,6 +109,8 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
   const [error, setError] = useState<string | null>(null)
   const [parsedPages, setParsedPages] = useState<{ title: string; content: string }[]>([])
   const defaultCharacter = useUserStore((s) => s.defaultCharacter)
+  const { share } = useShare()
+  const haptic = useHaptic()
 
   // Reset and load AI interpretation when modal opens
   useEffect(() => {
@@ -352,14 +355,9 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
 
                       <button
                         onClick={() => {
-                          // TODO: Implement share functionality + reward star dust
+                          haptic.light()
                           const shareText = `✨ Моя натальная карта:\n\n🌟 Солнце: ${sunSign}\n🌙 Луна: ${moonSign}\n✨ Асцендент: ${ascSign}\n\nУзнай свою в Звёздной Библиотеке!`
-                          if (navigator.share) {
-                            navigator.share({ text: shareText })
-                          } else {
-                            navigator.clipboard.writeText(shareText)
-                            alert('Скопировано в буфер обмена!')
-                          }
+                          share(shareText)
                         }}
                         className="px-2 py-1.5 text-xs rounded-lg bg-mystical-gold/20 hover:bg-mystical-gold/30 transition-colors flex-shrink-0 text-mystical-gold"
                       >

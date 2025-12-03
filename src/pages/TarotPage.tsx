@@ -6,15 +6,33 @@ import { GlassCard, MagicButton } from '@/components/ui'
 import { useHaptic, useBackButton } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/animations'
+import { getTarotCardImage } from '@/lib/tarot'
 
-// Временные данные для демо
-const DEMO_CARD = {
-  id: 0,
-  name: 'The Fool',
-  nameRu: 'Шут',
-  imageUrl: '/cards/major/fool.svg',
-  reversed: false,
-}
+// Список всех карт для случайного выбора
+const ALL_CARDS = [
+  { id: 0, name: 'The Fool', nameRu: 'Шут' },
+  { id: 1, name: 'The Magician', nameRu: 'Маг' },
+  { id: 2, name: 'The High Priestess', nameRu: 'Верховная Жрица' },
+  { id: 3, name: 'The Empress', nameRu: 'Императрица' },
+  { id: 4, name: 'The Emperor', nameRu: 'Император' },
+  { id: 5, name: 'The Hierophant', nameRu: 'Иерофант' },
+  { id: 6, name: 'The Lovers', nameRu: 'Влюблённые' },
+  { id: 7, name: 'The Chariot', nameRu: 'Колесница' },
+  { id: 8, name: 'Strength', nameRu: 'Сила' },
+  { id: 9, name: 'The Hermit', nameRu: 'Отшельник' },
+  { id: 10, name: 'Wheel of Fortune', nameRu: 'Колесо Фортуны' },
+  { id: 11, name: 'Justice', nameRu: 'Справедливость' },
+  { id: 12, name: 'The Hanged Man', nameRu: 'Повешенный' },
+  { id: 13, name: 'Death', nameRu: 'Смерть' },
+  { id: 14, name: 'Temperance', nameRu: 'Умеренность' },
+  { id: 15, name: 'The Devil', nameRu: 'Дьявол' },
+  { id: 16, name: 'The Tower', nameRu: 'Башня' },
+  { id: 17, name: 'The Star', nameRu: 'Звезда' },
+  { id: 18, name: 'The Moon', nameRu: 'Луна' },
+  { id: 19, name: 'The Sun', nameRu: 'Солнце' },
+  { id: 20, name: 'Judgement', nameRu: 'Суд' },
+  { id: 21, name: 'The World', nameRu: 'Мир' },
+]
 
 export function TarotPage() {
   const navigate = useNavigate()
@@ -31,11 +49,15 @@ export function TarotPage() {
     haptic.medium()
     setIsDrawing(true)
 
-    // Имитация вытягивания карты
+    // Случайный выбор карты
     setTimeout(() => {
+      const randomCard = ALL_CARDS[Math.floor(Math.random() * ALL_CARDS.length)]
+      const reversed = Math.random() > 0.7
+
       setDrawnCard({
-        ...DEMO_CARD,
-        reversed: Math.random() > 0.7,
+        ...randomCard,
+        imageUrl: getTarotCardImage(randomCard.name),
+        reversed,
       })
       setIsDrawing(false)
     }, 500)
