@@ -3,6 +3,7 @@ import Particles, { initParticlesEngine } from '@tsparticles/react'
 import { loadSlim } from '@tsparticles/slim'
 import type { ISourceOptions } from '@tsparticles/engine'
 
+// Animated star background with tsParticles
 export function StarsBackground() {
   const [init, setInit] = useState(false)
 
