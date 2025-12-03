@@ -21,9 +21,10 @@ export function getTarotCardImageUrl(cardName: string, arcana: string = 'major')
 }
 
 /**
- * Card name mappings for PNG files (major arcana)
+ * Card name mappings for PNG files (major + minor arcana)
  */
 const CARD_FILENAME_MAP: Record<string, string> = {
+  // Major Arcana
   'The Fool': '00-TheFool',
   'The Magician': '01-TheMagician',
   'The High Priestess': '02-TheHighPriestess',
@@ -46,6 +47,70 @@ const CARD_FILENAME_MAP: Record<string, string> = {
   'The Sun': '19-TheSun',
   'Judgement': '20-Judgement',
   'The World': '21-TheWorld',
+
+  // Minor Arcana - Cups
+  'Ace of Cups': 'Cups01',
+  '2 of Cups': 'Cups02',
+  '3 of Cups': 'Cups03',
+  '4 of Cups': 'Cups04',
+  '5 of Cups': 'Cups05',
+  '6 of Cups': 'Cups06',
+  '7 of Cups': 'Cups07',
+  '8 of Cups': 'Cups08',
+  '9 of Cups': 'Cups09',
+  '10 of Cups': 'Cups10',
+  'Page of Cups': 'Cups11',
+  'Knight of Cups': 'Cups12',
+  'Queen of Cups': 'Cups13',
+  'King of Cups': 'Cups14',
+
+  // Minor Arcana - Wands
+  'Ace of Wands': 'Wands01',
+  '2 of Wands': 'Wands02',
+  '3 of Wands': 'Wands03',
+  '4 of Wands': 'Wands04',
+  '5 of Wands': 'Wands05',
+  '6 of Wands': 'Wands06',
+  '7 of Wands': 'Wands07',
+  '8 of Wands': 'Wands08',
+  '9 of Wands': 'Wands09',
+  '10 of Wands': 'Wands10',
+  'Page of Wands': 'Wands11',
+  'Knight of Wands': 'Wands12',
+  'Queen of Wands': 'Wands13',
+  'King of Wands': 'Wands14',
+
+  // Minor Arcana - Swords
+  'Ace of Swords': 'Swords01',
+  '2 of Swords': 'Swords02',
+  '3 of Swords': 'Swords03',
+  '4 of Swords': 'Swords04',
+  '5 of Swords': 'Swords05',
+  '6 of Swords': 'Swords06',
+  '7 of Swords': 'Swords07',
+  '8 of Swords': 'Swords08',
+  '9 of Swords': 'Swords09',
+  '10 of Swords': 'Swords10',
+  'Page of Swords': 'Swords11',
+  'Knight of Swords': 'Swords12',
+  'Queen of Swords': 'Swords13',
+  'King of Swords': 'Swords14',
+
+  // Minor Arcana - Pentacles
+  'Ace of Pentacles': 'Pentacles01',
+  '2 of Pentacles': 'Pentacles02',
+  '3 of Pentacles': 'Pentacles03',
+  '4 of Pentacles': 'Pentacles04',
+  '5 of Pentacles': 'Pentacles05',
+  '6 of Pentacles': 'Pentacles06',
+  '7 of Pentacles': 'Pentacles07',
+  '8 of Pentacles': 'Pentacles08',
+  '9 of Pentacles': 'Pentacles09',
+  '10 of Pentacles': 'Pentacles10',
+  'Page of Pentacles': 'Pentacles11',
+  'Knight of Pentacles': 'Pentacles12',
+  'Queen of Pentacles': 'Pentacles13',
+  'King of Pentacles': 'Pentacles14',
 }
 
 /**

@@ -204,7 +204,7 @@ export function ProfilePage() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-gray">Дата</span>
-                <span>{birthDate ? birthDate.split('T')[0] : 'Не указана'}</span>
+                <span>{birthDate ? new Date(birthDate).toLocaleDateString('ru-RU') : 'Не указана'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-gray">Место</span>
