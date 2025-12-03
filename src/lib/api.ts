@@ -7,18 +7,15 @@ export interface DailyHubResponse {
     character: string
   }
   transits: TransitData[]
-  tier: 'FREE' | 'PREMIUM' | 'VIP'
-  character: {
-    name: string
-    emoji: string
-  }
+  tier: 'free' | 'premium' | 'vip'
 }
 
 export interface TransitData {
   planet: string
   aspect: string
-  natalPlanet: string
-  energyLevel: number
+  natal_planet: string
+  energy_level: number
+  theme: string
   dos: string[]
   donts: string[]
   emoji: string

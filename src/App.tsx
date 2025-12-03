@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { HomePage, TarotPage, NatalChartPage, ProfilePage, WelcomePage } from '@/pages'
+import { HomePage, TarotPage, NatalChartPage, ProfilePage, WelcomePage, DailyPage } from '@/pages'
 import { CelticCrossPage } from '@/pages/CelticCrossPage'
 import { ThreeCardPage } from '@/pages/ThreeCardPage'
 import { Navigation } from '@/components/Navigation'
@@ -61,6 +61,7 @@ function AppContent() {
     <>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/daily" element={<DailyPage />} />
         <Route path="/tarot" element={<TarotPage />} />
         <Route path="/celtic-cross" element={<CelticCrossPage />} />
         <Route path="/three-card" element={<ThreeCardPage />} />
