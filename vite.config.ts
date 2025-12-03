@@ -6,7 +6,7 @@ const CACHE_VERSION = Date.now().toString()
 
 export default defineConfig({
   plugins: [react()],
-  base: './',
+  base: '/star-library-webapp/',
   define: {
     '__CACHE_VERSION__': JSON.stringify(CACHE_VERSION)
   },
