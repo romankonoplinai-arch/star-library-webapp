@@ -34,7 +34,7 @@ const CARD_FILENAME_MAP: Record<string, string> = {
   'The Chariot': 'chariot',
   'Strength': 'strength',
   'The Hermit': 'hermit',
-  'Wheel of Fortune': 'wheel_of_fortune',
+  'Wheel of Fortune': 'wheel',
   'Justice': 'justice',
   'The Hanged Man': 'hanged_man',
   'Death': 'death',
