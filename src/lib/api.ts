@@ -213,7 +213,8 @@ class ApiClient {
     sunSign: string,
     moonSign: string,
     ascSign: string,
-    character: string = 'lunara'
+    character: string = 'lunara',
+    perspective: string = 'general'
   ): Promise<{ success: boolean; interpretation: string; character: string }> {
     return this.fetch('/natal-chart/interpret', {
       method: 'POST',
@@ -222,6 +223,7 @@ class ApiClient {
         moon_sign: moonSign,
         asc_sign: ascSign,
         character,
+        perspective,
       }),
     })
   }
