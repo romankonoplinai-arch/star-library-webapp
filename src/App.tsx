@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { HomePage, TarotPage, NatalChartPage, ProfilePage } from '@/pages'
+import { HomePage, TarotPage, NatalChartPage, ProfilePage, WelcomePage } from '@/pages'
 import { CelticCrossPage } from '@/pages/CelticCrossPage'
 import { ThreeCardPage } from '@/pages/ThreeCardPage'
 import { Navigation } from '@/components/Navigation'
@@ -12,6 +12,13 @@ import { LoadingSpinner } from '@/components/ui'
 function AppContent() {
   const { isReady: isTelegramReady, initDataRaw } = useTelegram()
   const syncFromApi = useUserStore((s) => s.syncFromApi)
+  const [hasSeenWelcome, setHasSeenWelcome] = useState<boolean | null>(null)
+
+  // Check if user has seen welcome screen
+  useEffect(() => {
+    const seen = localStorage.getItem('hasSeenWelcome')
+    setHasSeenWelcome(seen === 'true')
+  }, [])
 
   // Инициализация: передать initData в API и загрузить данные
   useEffect(() => {
@@ -34,9 +41,8 @@ function AppContent() {
       })
   }, [isTelegramReady, initDataRaw, syncFromApi])
 
-  // Показываем загрузку только если Telegram не готов
-  // Не блокируем UI если API не ответил - данные уже в БД
-  if (!isTelegramReady) {
+  // Show loading while checking localStorage or Telegram not ready
+  if (hasSeenWelcome === null || !isTelegramReady) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
@@ -44,9 +50,19 @@ function AppContent() {
     )
   }
 
-  // TODO: онбординг можно включить позже через Профиль
-  // Сейчас пропускаем - данные рождения уже в БД
+  // Show welcome screen if not seen
+  if (!hasSeenWelcome) {
+    return (
+      <WelcomePage
+        onComplete={() => {
+          localStorage.setItem('hasSeenWelcome', 'true')
+          setHasSeenWelcome(true)
+        }}
+      />
+    )
+  }
 
+  // Show main app
   return (
     <>
       <Routes>
