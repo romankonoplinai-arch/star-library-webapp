@@ -8,13 +8,13 @@ export function useShare() {
       return
     }
 
-    // Try shareToStory API (newer) - using any type to bypass TypeScript checks
-    if (typeof (webApp as any).shareToStory === 'function') {
-      ;(webApp as any).shareToStory(text, url)
+    // Try switchInlineQuery to open chat selector (best UX)
+    if (typeof (webApp as any).switchInlineQuery === 'function') {
+      ;(webApp as any).switchInlineQuery(text, ['users', 'groups', 'channels'])
       return
     }
 
-    // Fallback to openTelegramLink
+    // Fallback to openTelegramLink with share dialog
     if (typeof (webApp as any).openTelegramLink === 'function') {
       const shareUrl = url
         ? `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`
