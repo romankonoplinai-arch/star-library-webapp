@@ -1,7 +1,4 @@
 import { motion } from 'framer-motion'
-import { GlassCard, MagicButton } from '@/components/ui'
-import { useTelegram } from '@/hooks'
-import { fadeUp } from '@/lib/animations'
 import welcomeImage from '/welcome-illustration.webp'
 
 declare const __CACHE_VERSION__: string
@@ -11,9 +8,6 @@ interface WelcomePageProps {
 }
 
 export function WelcomePage({ onComplete }: WelcomePageProps) {
-  const { user } = useTelegram()
-  const firstName = user?.firstName || 'путник'
-
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4">
       {/* Cosmic Background with AI Illustration */}
@@ -51,67 +45,19 @@ export function WelcomePage({ onComplete }: WelcomePageProps) {
         }}
       />
 
-      {/* Content */}
+      {/* Transparent Enter Button at Bottom */}
       <motion.div
-        className="relative z-10 text-center max-w-md"
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.5, duration: 0.8 }}
       >
-
-        {/* Main Card with Welcome Text */}
-        <GlassCard className="backdrop-blur-xl">
-          <motion.p
-            className="text-muted-gray text-sm mb-4 italic"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            *Мерцание звёзд... Шорох древних страниц...*
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-          >
-            <h1 className="text-2xl font-display font-bold text-gradient mb-4">
-              Звёздная Библиотека
-            </h1>
-          </motion.div>
-
-          <motion.p
-            className="text-soft-white/90 mb-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
-          >
-            🌙 Приветствую тебя, <span className="text-mystical-gold font-semibold">{firstName}</span>.
-          </motion.p>
-
-          <motion.p
-            className="text-soft-white/80 text-sm mb-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.1 }}
-          >
-            Я - Лунара, Хранительница этого места.<br/>
-            Твоя Книга Судьбы уже ждёт тебя...
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1.3 }}
-          >
-            <MagicButton
-              fullWidth
-              onClick={onComplete}
-            >
-              🌟 Войти в Библиотеку
-            </MagicButton>
-          </motion.div>
-        </GlassCard>
+        <button
+          onClick={onComplete}
+          className="px-8 py-3 text-sm font-medium text-soft-white/90 bg-deep-space/30 backdrop-blur-sm border border-soft-white/20 rounded-full hover:bg-deep-space/50 hover:border-mystical-gold/40 transition-all duration-300"
+        >
+          ✨ Войти
+        </button>
       </motion.div>
     </div>
   )
