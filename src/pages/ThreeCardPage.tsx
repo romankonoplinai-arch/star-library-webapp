@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { api, type CardInSpread } from '@/lib/api'
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/animations'
 import { useUserStore } from '@/stores'
+import { getTarotCardImage } from '@/lib/tarot'
 
 export function ThreeCardPage() {
   const navigate = useNavigate()
@@ -131,7 +132,7 @@ export function ThreeCardPage() {
                         id: cardInSpread.card.id,
                         name: cardInSpread.card.name,
                         nameRu: cardInSpread.card.name_ru,
-                        imageUrl: cardInSpread.card.image_url,
+                        imageUrl: getTarotCardImage(cardInSpread.card.name, cardInSpread.card.arcana),
                         reversed: cardInSpread.card.reversed,
                       }}
                       size="md"

@@ -20,6 +20,7 @@ interface CardInSpread {
 }
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/animations'
 import { useUserStore } from '@/stores'
+import { getTarotCardImage } from '@/lib/tarot'
 
 export function CelticCrossPage() {
   const navigate = useNavigate()
@@ -56,7 +57,7 @@ export function CelticCrossPage() {
           id: c.card.id,
           name: c.card.name,
           nameRu: c.card.name_ru,
-          imageUrl: c.card.image_url,
+          imageUrl: getTarotCardImage(c.card.name, c.card.arcana),
           reversed: c.card.reversed,
         },
         position: c.position,
