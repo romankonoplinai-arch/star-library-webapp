@@ -4,6 +4,7 @@ import { HomePage, TarotPage, NatalChartPage, ProfilePage, WelcomePage } from '@
 import { CelticCrossPage } from '@/pages/CelticCrossPage'
 import { ThreeCardPage } from '@/pages/ThreeCardPage'
 import { Navigation } from '@/components/Navigation'
+import { StarsBackground } from '@/components/background'
 import { useTelegram } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { api } from '@/lib/api'
@@ -73,8 +74,11 @@ function AppContent() {
 
 export default function App() {
   return (
-    <HashRouter>
-      <AppContent />
-    </HashRouter>
+    <>
+      <StarsBackground />
+      <HashRouter>
+        <AppContent />
+      </HashRouter>
+    </>
   )
 }
