@@ -264,13 +264,17 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
                     <LoadingSpinner size="lg" />
                     <p className="text-muted-gray mt-4">Генерируем ваше персональное толкование...</p>
                   </div>
-                ) : error ? (
-                  <div className="min-h-[400px] flex flex-col items-center justify-center">
-                    <p className="text-red-400 mb-4">{error}</p>
-                    <p className="text-muted-gray text-sm">Показываем базовое толкование</p>
-                  </div>
                 ) : parsedPages.length > 0 ? (
                   <>
+                    {/* Error notification if AI failed */}
+                    {error && (
+                      <div className="mb-4 p-3 rounded-lg bg-mystical-gold/10 border border-mystical-gold/30">
+                        <p className="text-mystical-gold text-sm text-center">
+                          ✨ Показываем базовое толкование
+                        </p>
+                      </div>
+                    )}
+
                     {/* Page content with flip animation */}
                     <div className="flex-1 overflow-y-auto min-h-0 mb-4">
                       <AnimatePresence initial={false} custom={direction}>
