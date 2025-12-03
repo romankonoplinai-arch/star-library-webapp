@@ -69,7 +69,7 @@ export function StarsBackground() {
           value: 80, // Количество звёзд
         },
         opacity: {
-          value: { min: 0.1, max: 0.8 }, // Мерцание
+          value: { min: 0.3, max: 1.0 }, // Более яркие звёзды
           animation: {
             enable: true,
             speed: 1,
@@ -80,7 +80,7 @@ export function StarsBackground() {
           type: 'circle', // Круглые звёзды
         },
         size: {
-          value: { min: 1, max: 3 }, // Разный размер
+          value: { min: 2, max: 5 }, // Более крупные звёзды
           animation: {
             enable: true,
             speed: 2,
