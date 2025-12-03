@@ -24,7 +24,7 @@ export function WelcomePage({ onComplete }: WelcomePageProps) {
         transition={{ duration: 2 }}
       >
         <img
-          src="/welcome-illustration.webp"
+          src={`/welcome-illustration.webp?v=${Date.now()}`}
           alt="Cosmic Library Guardians"
           className="w-full h-full object-cover object-center"
         />

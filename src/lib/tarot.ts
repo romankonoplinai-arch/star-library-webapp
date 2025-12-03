@@ -14,7 +14,7 @@ export function getTarotCardImageUrl(cardName: string, arcana: string = 'major')
     .replace(/ /g, '_') // Replace spaces with underscores
     .replace(/[^a-z0-9_]/g, '') // Keep letters, numbers, underscores only
 
-  return `/cards/${arcana}/${filename}.svg`
+  return `/cards/${arcana}/${filename}.svg?v=${Date.now()}`
 }
 
 /**
@@ -49,6 +49,6 @@ const CARD_FILENAME_MAP: Record<string, string> = {
  * Get correct image URL using mapping (more reliable)
  */
 export function getTarotCardImage(cardName: string, arcana: string = 'major'): string {
-  const filename = CARD_FILENAME_MAP[cardName] || getTarotCardImageUrl(cardName, arcana).split('/').pop()?.replace('.svg', '')
-  return `/cards/${arcana}/${filename}.svg`
+  const filename = CARD_FILENAME_MAP[cardName] || getTarotCardImageUrl(cardName, arcana).split('/').pop()?.replace('.svg', '').split('?')[0]
+  return `/cards/${arcana}/${filename}.svg?v=${Date.now()}`
 }
