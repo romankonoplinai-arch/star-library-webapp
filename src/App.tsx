@@ -12,15 +12,7 @@ import { LoadingSpinner } from '@/components/ui'
 function AppContent() {
   const { isReady: isTelegramReady, initDataRaw } = useTelegram()
   const syncFromApi = useUserStore((s) => s.syncFromApi)
-  const [hasSeenWelcome, setHasSeenWelcome] = useState<boolean | null>(null)
-
-  // Check if user has seen welcome screen
-  useEffect(() => {
-    const seen = localStorage.getItem('hasSeenWelcome')
-    setHasSeenWelcome(seen === 'true')
-  }, [])
-
-  // DEV: Manual reset via console: localStorage.removeItem('hasSeenWelcome'); location.reload()
+  const [showWelcome, setShowWelcome] = useState(true)
 
   // Инициализация: передать initData в API и загрузить данные
   useEffect(() => {
@@ -43,8 +35,8 @@ function AppContent() {
       })
   }, [isTelegramReady, initDataRaw, syncFromApi])
 
-  // Show loading while checking localStorage or Telegram not ready
-  if (hasSeenWelcome === null || !isTelegramReady) {
+  // Show loading while Telegram not ready
+  if (!isTelegramReady) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cosmic-black">
         <LoadingSpinner size="lg" />
@@ -52,13 +44,12 @@ function AppContent() {
     )
   }
 
-  // Show welcome screen if not seen
-  if (!hasSeenWelcome) {
+  // Show welcome screen on every app launch
+  if (showWelcome) {
     return (
       <WelcomePage
         onComplete={() => {
-          localStorage.setItem('hasSeenWelcome', 'true')
-          setHasSeenWelcome(true)
+          setShowWelcome(false)
         }}
       />
     )
