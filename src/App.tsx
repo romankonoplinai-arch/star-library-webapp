@@ -44,7 +44,7 @@ function AppContent() {
   // Show loading while checking localStorage or Telegram not ready
   if (hasSeenWelcome === null || !isTelegramReady) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-cosmic-black">
         <LoadingSpinner size="lg" />
       </div>
     )
