@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useHaptic } from '@/hooks'
 import { cardFlip } from '@/lib/animations'
+import { getCardBackImage } from '@/lib/tarot'
 
 interface TarotCardData {
   id: number
@@ -70,15 +71,11 @@ export function TarotCard({
             className="absolute inset-0 rounded-xl overflow-hidden"
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
-            <div className="w-full h-full bg-gradient-to-br from-deep-purple to-midnight-blue border-2 border-mystical-gold/30 rounded-xl flex items-center justify-center">
-              <motion.div
-                className="text-mystical-gold text-4xl"
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                ✧
-              </motion.div>
-            </div>
+            <img
+              src={getCardBackImage()}
+              alt="Card Back"
+              className="w-full h-full object-cover rounded-xl"
+            />
           </div>
 
           {/* Лицо карты */}

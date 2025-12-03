@@ -21,37 +21,48 @@ export function getTarotCardImageUrl(cardName: string, arcana: string = 'major')
 }
 
 /**
- * Card name mappings for correct filenames
+ * Card name mappings for PNG files (major arcana)
  */
 const CARD_FILENAME_MAP: Record<string, string> = {
-  'The Fool': 'fool',
-  'The Magician': 'magician',
-  'The High Priestess': 'high_priestess',
-  'The Empress': 'empress',
-  'The Emperor': 'emperor',
-  'The Hierophant': 'hierophant',
-  'The Lovers': 'lovers',
-  'The Chariot': 'chariot',
-  'Strength': 'strength',
-  'The Hermit': 'hermit',
-  'Wheel of Fortune': 'wheel',
-  'Justice': 'justice',
-  'The Hanged Man': 'hanged_man',
-  'Death': 'death',
-  'Temperance': 'temperance',
-  'The Devil': 'devil',
-  'The Tower': 'tower',
-  'The Star': 'star',
-  'The Moon': 'moon',
-  'The Sun': 'sun',
-  'Judgement': 'judgement',
-  'The World': 'world',
+  'The Fool': '00-TheFool',
+  'The Magician': '01-TheMagician',
+  'The High Priestess': '02-TheHighPriestess',
+  'The Empress': '03-TheEmpress',
+  'The Emperor': '04-TheEmperor',
+  'The Hierophant': '05-TheHierophant',
+  'The Lovers': '06-TheLovers',
+  'The Chariot': '07-TheChariot',
+  'Strength': '08-Strength',
+  'The Hermit': '09-TheHermit',
+  'Wheel of Fortune': '10-WheelOfFortune',
+  'Justice': '11-Justice',
+  'The Hanged Man': '12-TheHangedMan',
+  'Death': '13-Death',
+  'Temperance': '14-Temperance',
+  'The Devil': '15-TheDevil',
+  'The Tower': '16-TheTower',
+  'The Star': '17-TheStar',
+  'The Moon': '18-TheMoon',
+  'The Sun': '19-TheSun',
+  'Judgement': '20-Judgement',
+  'The World': '21-TheWorld',
 }
 
 /**
- * Get correct image URL using mapping (more reliable)
+ * Get correct image URL using PNG cards
  */
 export function getTarotCardImage(cardName: string, arcana: string = 'major'): string {
-  const filename = CARD_FILENAME_MAP[cardName] || getTarotCardImageUrl(cardName, arcana).split('/').pop()?.replace('.svg', '').split('?')[0]
-  return `${import.meta.env.BASE_URL}cards/${arcana}/${filename}.svg?v=${__CACHE_VERSION__}`
+  const filename = CARD_FILENAME_MAP[cardName]
+  if (!filename) {
+    console.warn(`No filename mapping for card: ${cardName}`)
+    return `${import.meta.env.BASE_URL}cards/Cards-png/CardBacks.png?v=${__CACHE_VERSION__}`
+  }
+  return `${import.meta.env.BASE_URL}cards/Cards-png/${filename}.png?v=${__CACHE_VERSION__}`
+}
+
+/**
+ * Get card back image URL
+ */
+export function getCardBackImage(): string {
+  return `${import.meta.env.BASE_URL}cards/Cards-png/CardBacks.png?v=${__CACHE_VERSION__}`
 }
