@@ -13,7 +13,7 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/', label: 'Главная', icon: '🏠' },
   { path: '/tarot', label: 'Таро', icon: '🎴' },
   { path: '/natal', label: 'Карта', icon: '🌌' },
-  { path: '/profile', label: 'Профиль', icon: '👤' },
+  { path: '/profile', label: 'Профиль', icon: '✨' },
 ]
 
 export function Navigation() {

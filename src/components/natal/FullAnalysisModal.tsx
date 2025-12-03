@@ -269,15 +269,15 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 pb-20">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full h-full max-w-[96vw] max-h-[94vh]"
+              className="relative w-full h-full max-w-[96vw] max-h-[86vh]"
               style={{ perspective: 1000 }}
             >
-              <GlassCard className="p-4 h-full flex flex-col">
+              <GlassCard className="p-3 h-full flex flex-col">
                 {/* Close button */}
                 <button
                   onClick={onClose}
@@ -326,13 +326,13 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
                           className="h-full flex flex-col py-2"
                         >
                           {/* Title */}
-                          <h2 className="text-2xl md:text-3xl font-display font-bold text-mystical-gold mb-4 text-center flex-shrink-0">
+                          <h2 className="text-xl md:text-2xl font-display font-bold text-mystical-gold mb-3 text-center flex-shrink-0">
                             {currentPageData.title}
                           </h2>
 
                           {/* Content - scrollable */}
                           <div className="flex-1 overflow-y-auto px-2">
-                            <p className="text-soft-white text-base md:text-lg leading-relaxed whitespace-pre-line">
+                            <p className="text-soft-white text-sm leading-relaxed whitespace-pre-line">
                               {currentPageData.content}
                             </p>
                           </div>
@@ -341,11 +341,11 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
                     </div>
 
                     {/* Navigation */}
-                    <div className="flex items-center justify-between pt-3 mt-3 border-t border-white/10 flex-shrink-0">
+                    <div className="flex items-center justify-between pt-2 mt-2 border-t border-white/10 flex-shrink-0 mb-1">
                       <button
                         onClick={prevPage}
                         disabled={currentPage === 0}
-                        className="px-3 py-1.5 text-sm rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        className="px-3 py-1.5 text-xs rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
                         ← Назад
                       </button>
@@ -364,7 +364,7 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
                       <button
                         onClick={nextPage}
                         disabled={currentPage === parsedPages.length - 1}
-                        className="px-3 py-1.5 text-sm rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        className="px-3 py-1.5 text-xs rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
                         Далее →
                       </button>
