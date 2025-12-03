@@ -76,9 +76,19 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
   const [parsedPages, setParsedPages] = useState<{ title: string; content: string }[]>([])
   const defaultCharacter = useUserStore((s) => s.defaultCharacter)
 
-  // Load AI interpretation when modal opens
+  // Reset and load AI interpretation when modal opens
   useEffect(() => {
-    if (!isOpen || aiInterpretation) return
+    if (!isOpen) {
+      // Reset state when modal closes
+      setCurrentPage(0)
+      setAiInterpretation(null)
+      setParsedPages([])
+      setError(null)
+      return
+    }
+
+    // If we already have interpretation and parsed pages, don't reload
+    if (aiInterpretation && parsedPages.length > 0) return
 
     const loadInterpretation = async () => {
       setIsLoading(true)
@@ -92,10 +102,18 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
           defaultCharacter
         )
 
+        console.log('API Response:', response)
+
+        // Check if interpretation exists
+        if (!response || !response.interpretation) {
+          throw new Error('AI не вернул толкование')
+        }
+
         setAiInterpretation(response.interpretation)
 
         // Parse AI response into 5 pages
         const pages = parseAiInterpretation(response.interpretation)
+        console.log('Parsed pages:', pages)
         setParsedPages(pages)
       } catch (err: any) {
         console.error('Failed to load AI interpretation:', err)
@@ -112,9 +130,17 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
     }
 
     loadInterpretation()
-  }, [isOpen, sunSign, moonSign, ascSign, defaultCharacter, aiInterpretation])
+  }, [isOpen, sunSign, moonSign, ascSign, defaultCharacter])
 
   const parseAiInterpretation = (text: string): { title: string; content: string }[] => {
+    // Safety check: if text is null/undefined/empty, return fallback
+    if (!text || typeof text !== 'string' || text.trim().length === 0) {
+      return [{
+        title: 'Ошибка',
+        content: 'Не удалось получить толкование от AI'
+      }]
+    }
+
     // Try multiple parsing strategies
 
     // Strategy 1: "Страница N - "Title""
