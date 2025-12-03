@@ -33,6 +33,8 @@ export function ProfilePage() {
   const defaultCharacter = useUserStore((s) => s.defaultCharacter)
   const totalHoroscopes = useUserStore((s) => s.totalHoroscopes)
   const totalActiveDays = useUserStore((s) => s.totalActiveDays)
+  const starDust = useUserStore((s) => s.starDust)
+  const natalChartLevel = useUserStore((s) => s.natalChartLevel)
   const setCharacter = useUserStore((s) => s.setCharacter)
   const setBirthData = useUserStore((s) => s.setBirthData)
 
@@ -273,22 +275,38 @@ export function ProfilePage() {
           </GlassCard>
         </motion.div>
 
-        {/* Stats */}
+        {/* Cabinet */}
         <motion.div variants={staggerItem}>
           <GlassCard className="p-4">
-            <h2 className="text-mystical-gold font-semibold mb-3">Статистика</h2>
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div>
-                <p className="text-2xl font-bold text-mystical-gold">0</p>
-                <p className="text-xs text-muted-gray">Раскладов</p>
+            <h2 className="text-mystical-gold font-semibold mb-3">Кабинет</h2>
+            <div className="space-y-3">
+              {/* Star Dust */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">✨</span>
+                  <div>
+                    <p className="font-semibold">Звёздная пыль</p>
+                    <p className="text-xs text-muted-gray">Для прокачки навыков</p>
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-mystical-gold">{starDust}</p>
               </div>
-              <div>
-                <p className="text-2xl font-bold text-accent-purple">{totalHoroscopes}</p>
-                <p className="text-xs text-muted-gray">Гороскопов</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{totalActiveDays}</p>
-                <p className="text-xs text-muted-gray">Дней</p>
+
+              {/* Natal Chart Level */}
+              <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🌌</span>
+                  <div>
+                    <p className="font-semibold">Натальная карта</p>
+                    <p className="text-xs text-muted-gray">Уровень {natalChartLevel}/100</p>
+                  </div>
+                </div>
+                <MagicButton size="sm" onClick={() => {
+                  haptic.medium()
+                  navigate('/natal-chart')
+                }}>
+                  Прокачать
+                </MagicButton>
               </div>
             </div>
           </GlassCard>

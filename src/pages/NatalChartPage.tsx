@@ -11,7 +11,7 @@ import {
 } from '@/components/natal'
 import { GlassCard, LoadingSpinner } from '@/components/ui'
 import { TabSwitcher } from '@/components/ui/TabSwitcher'
-import { useBackButton, useHaptic } from '@/hooks'
+import { useBackButton, useHaptic, useShare } from '@/hooks'
 import { staggerContainer, staggerItem } from '@/lib/animations'
 import { useNavigate } from 'react-router-dom'
 import { ZODIAC_SIGNS, getSignFromDegree } from '@/lib/natalData'
@@ -33,6 +33,7 @@ export function NatalChartPage() {
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
   const haptic = useHaptic()
+  const { share } = useShare()
   const isVip = useUserStore((s) => s.isVip)
   const birthDate = useUserStore((s) => s.birthDate)
 
@@ -246,6 +247,23 @@ export function NatalChartPage() {
               />
             )}
           </GlassCard>
+        </motion.div>
+
+        {/* Share Button */}
+        <motion.div variants={staggerItem} className="text-center">
+          <button
+            onClick={() => {
+              haptic.light()
+              const shareText = `Моя натальная карта 🌌\n\n☉ Солнце: ${sunSign?.nameRu}\n☽ Луна: ${moonSign?.nameRu}\n⬆ Асцендент: ${ascSign?.nameRu}\n\nПланеты в знаках:\n${planets.map(p => {
+                const sign = ZODIAC_SIGNS[getSignFromDegree(p.degree) as keyof typeof ZODIAC_SIGNS]
+                return `${p.name}: ${sign?.nameRu || ''}`
+              }).join('\n')}`
+              share(shareText)
+            }}
+            className="text-mystical-gold hover:underline flex items-center gap-1 mx-auto"
+          >
+            <span>↗️</span> Поделиться картой
+          </button>
         </motion.div>
 
       </motion.div>

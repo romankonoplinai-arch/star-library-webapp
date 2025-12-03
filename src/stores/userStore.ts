@@ -13,6 +13,8 @@ interface UserState {
   defaultCharacter: string
   totalHoroscopes: number
   totalActiveDays: number
+  starDust: number
+  natalChartLevel: number
   isLoading: boolean
   isLoaded: boolean
 
@@ -40,6 +42,8 @@ interface ApiUserData {
   default_character?: string
   total_horoscopes?: number
   total_active_days?: number
+  star_dust?: number
+  natal_chart_level?: number
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
@@ -53,6 +57,8 @@ export const useUserStore = create<UserState>((set, get) => ({
   defaultCharacter: 'lunara',
   totalHoroscopes: 0,
   totalActiveDays: 0,
+  starDust: 0,
+  natalChartLevel: 1,
   isLoading: false,
   isLoaded: false,
 
@@ -79,6 +85,8 @@ export const useUserStore = create<UserState>((set, get) => ({
       defaultCharacter: data.default_character || 'lunara',
       totalHoroscopes: data.total_horoscopes || 0,
       totalActiveDays: data.total_active_days || 0,
+      starDust: data.star_dust || 0,
+      natalChartLevel: data.natal_chart_level || 1,
       isLoading: false,
       isLoaded: true,
     }),
