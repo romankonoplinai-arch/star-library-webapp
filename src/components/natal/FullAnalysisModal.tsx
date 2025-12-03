@@ -115,35 +115,49 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
   }, [isOpen, sunSign, moonSign, ascSign, defaultCharacter, aiInterpretation])
 
   const parseAiInterpretation = (text: string): { title: string; content: string }[] => {
-    // Try to split by "Страница N" pattern
-    const pagePattern = /Страница \d+ - "([^"]+)":\s*([\s\S]*?)(?=Страница \d+|$)/g
-    const matches = [...text.matchAll(pagePattern)]
+    // Try multiple parsing strategies
 
-    if (matches.length >= 5) {
+    // Strategy 1: "Страница N - "Title""
+    const pattern1 = /Страница \d+ - "([^"]+)"[:\s]*([\s\S]*?)(?=Страница \d+|$)/g
+    let matches = [...text.matchAll(pattern1)]
+
+    if (matches.length >= 3) {
       return matches.slice(0, 5).map(match => ({
         title: match[1],
         content: match[2].trim()
       }))
     }
 
-    // Fallback: split by titles from PAGES
-    const titles = PAGES.map(p => p.title)
-    const pages = titles.map((title, i) => {
-      const nextTitle = i < titles.length - 1 ? titles[i + 1] : null
-      const startIdx = text.indexOf(title)
+    // Strategy 2: "**Title**" or "## Title"
+    const pattern2 = /(?:\*\*|##)\s*(.+?)\s*(?:\*\*|##)?\s*\n([\s\S]*?)(?=(?:\*\*|##)|$)/g
+    matches = [...text.matchAll(pattern2)]
 
-      if (startIdx === -1) {
-        return { title, content: '' }
-      }
+    if (matches.length >= 3) {
+      return matches.slice(0, 5).map(match => ({
+        title: match[1].replace(/\*\*/g, '').trim(),
+        content: match[2].trim()
+      }))
+    }
 
-      const contentStart = startIdx + title.length
-      const contentEnd = nextTitle ? text.indexOf(nextTitle, contentStart) : text.length
-      const content = text.slice(contentStart, contentEnd).trim()
+    // Strategy 3: Split by double newlines and take chunks
+    const chunks = text.split(/\n\n+/).filter(chunk => chunk.trim().length > 50)
+    if (chunks.length >= 3) {
+      return chunks.slice(0, 5).map((chunk, i) => {
+        const lines = chunk.split('\n')
+        const title = lines[0].replace(/\*\*/g, '').replace(/##/g, '').trim()
+        const content = lines.slice(1).join('\n').trim()
+        return {
+          title: title || `Часть ${i + 1}`,
+          content: content || chunk
+        }
+      })
+    }
 
-      return { title, content }
-    })
-
-    return pages
+    // Fallback: return whole text as one page
+    return [{
+      title: 'Ваша Натальная Карта',
+      content: text.trim()
+    }]
   }
 
   const nextPage = () => {
@@ -204,7 +218,7 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
               className="relative w-full max-w-md"
               style={{ perspective: 1000 }}
             >
-              <GlassCard className="p-6 overflow-hidden">
+              <GlassCard className="p-6 max-h-[80vh] flex flex-col">
                 {/* Close button */}
                 <button
                   onClick={onClose}
@@ -232,37 +246,39 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
                 ) : parsedPages.length > 0 ? (
                   <>
                     {/* Page content with flip animation */}
-                    <AnimatePresence initial={false} custom={direction}>
-                      <motion.div
-                        key={currentPage}
-                        custom={direction}
-                        variants={pageVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{
-                          x: { type: 'spring', stiffness: 300, damping: 30 },
-                          opacity: { duration: 0.2 },
-                          rotateY: { duration: 0.5 },
-                        }}
-                        className="min-h-[400px] flex flex-col"
-                      >
-                        {/* Title */}
-                        <h2 className="text-2xl font-display font-bold text-mystical-gold mb-4 text-center">
-                          {currentPageData.title}
-                        </h2>
+                    <div className="flex-1 overflow-y-auto min-h-0 mb-4">
+                      <AnimatePresence initial={false} custom={direction}>
+                        <motion.div
+                          key={currentPage}
+                          custom={direction}
+                          variants={pageVariants}
+                          initial="enter"
+                          animate="center"
+                          exit="exit"
+                          transition={{
+                            x: { type: 'spring', stiffness: 300, damping: 30 },
+                            opacity: { duration: 0.2 },
+                            rotateY: { duration: 0.5 },
+                          }}
+                          className="h-full flex flex-col"
+                        >
+                          {/* Title */}
+                          <h2 className="text-2xl font-display font-bold text-mystical-gold mb-4 text-center flex-shrink-0">
+                            {currentPageData.title}
+                          </h2>
 
-                        {/* Content */}
-                        <div className="flex-1 overflow-y-auto">
-                          <p className="text-soft-white leading-relaxed whitespace-pre-line">
-                            {currentPageData.content}
-                          </p>
-                        </div>
-                      </motion.div>
-                    </AnimatePresence>
+                          {/* Content */}
+                          <div className="flex-1 overflow-y-auto pr-2">
+                            <p className="text-soft-white leading-relaxed whitespace-pre-line">
+                              {currentPageData.content}
+                            </p>
+                          </div>
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
 
                     {/* Navigation */}
-                    <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
+                    <div className="flex items-center justify-between pt-4 border-t border-white/10 flex-shrink-0">
                       <button
                         onClick={prevPage}
                         disabled={currentPage === 0}
