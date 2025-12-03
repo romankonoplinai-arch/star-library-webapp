@@ -1,8 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { execSync } from 'child_process'
 
-const CACHE_VERSION = Date.now().toString()
+// Use git commit hash + timestamp for cache busting
+const getGitHash = () => {
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim()
+  } catch {
+    return 'dev'
+  }
+}
+
+const CACHE_VERSION = `${getGitHash()}-${Date.now()}`
 
 export default defineConfig({
   plugins: [react()],
