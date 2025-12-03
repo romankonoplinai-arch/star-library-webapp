@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { GlassCard, MagicButton } from '@/components/ui'
 import { useTelegram } from '@/hooks'
 import { fadeUp } from '@/lib/animations'
+import welcomeImage from '/welcome-illustration.webp'
 
 declare const __CACHE_VERSION__: string
 
@@ -26,7 +27,7 @@ export function WelcomePage({ onComplete }: WelcomePageProps) {
         transition={{ duration: 2 }}
       >
         <img
-          src={`/welcome-illustration.webp?v=${__CACHE_VERSION__}`}
+          src={`${welcomeImage}?v=${__CACHE_VERSION__}`}
           alt="Cosmic Library Guardians"
           className="w-full h-full object-cover object-center"
         />
