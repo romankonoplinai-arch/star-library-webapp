@@ -178,6 +178,7 @@ export function NatalChartSVG({
         let diff = nextCusp - cusp
         if (diff < 0) diff += 360 // Handle wrap-around
         const midDeg = cusp + diff / 2
+        // Номер дома = i + 1, но массив romanNumerals индексируется с 0
         const pos = degToCoord(midDeg, innerCircleRadius + 25)
         const isAngular = i === 0 || i === 3 || i === 6 || i === 9
         const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII']
@@ -245,10 +246,10 @@ export function NatalChartSVG({
         )
       })}
 
-      {/* ASC marker */}
+      {/* ASC marker - рисуется на градусе ascendant (слева на карте) */}
       <text
-        x={degToCoord(0, zodiacInnerRadius + 15).x - 20}
-        y={degToCoord(0, zodiacInnerRadius + 15).y}
+        x={degToCoord(ascendant, zodiacInnerRadius + 15).x - 20}
+        y={degToCoord(ascendant, zodiacInnerRadius + 15).y}
         fill="#FFD700"
         fontSize="11"
         fontWeight="bold"
