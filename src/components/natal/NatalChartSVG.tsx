@@ -171,11 +171,16 @@ export function NatalChartSVG({
         )
       })}
 
-      {/* House numbers */}
+      {/* House numbers - Roman numerals */}
       {houses.map((cusp, i) => {
         const nextCusp = houses[(i + 1) % 12]
-        const midDeg = cusp + ((nextCusp > cusp ? nextCusp - cusp : 360 - cusp + nextCusp) / 2)
-        const pos = degToCoord(midDeg, houseRadius - 15)
+        // Calculate middle of the house sector
+        let diff = nextCusp - cusp
+        if (diff < 0) diff += 360 // Handle wrap-around
+        const midDeg = cusp + diff / 2
+        const pos = degToCoord(midDeg, innerCircleRadius + 25)
+        const isAngular = i === 0 || i === 3 || i === 6 || i === 9
+        const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII']
 
         return (
           <text
@@ -184,10 +189,11 @@ export function NatalChartSVG({
             y={pos.y}
             textAnchor="middle"
             dominantBaseline="middle"
-            fill="rgba(180,162,112,0.5)"
-            fontSize="9"
+            fill={isAngular ? 'rgba(180,162,112,0.8)' : 'rgba(180,162,112,0.5)'}
+            fontSize={isAngular ? '11' : '9'}
+            fontWeight={isAngular ? 'bold' : 'normal'}
           >
-            {i + 1}
+            {romanNumerals[i]}
           </text>
         )
       })}
