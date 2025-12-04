@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { GlassCard, MagicButton } from '@/components/ui'
 import { useTelegram, useHaptic } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { staggerContainer, staggerItem, fadeUp } from '@/lib/animations'
 
 export function HomePage() {
+  const navigate = useNavigate()
   const haptic = useHaptic()
   const { user: tgUser } = useTelegram()
   const firstName = useUserStore((s) => s.firstName) || tgUser?.firstName || 'путник'
@@ -13,7 +15,12 @@ export function HomePage() {
 
   const handleCardOfDay = () => {
     haptic.light()
-    // TODO: navigate to tarot
+    navigate('/tarot')
+  }
+
+  const handleFriendChart = () => {
+    haptic.light()
+    navigate('/friend')
   }
 
   return (
@@ -116,13 +123,29 @@ export function HomePage() {
 
         {/* Натальная карта */}
         <motion.div variants={staggerItem}>
-          <GlassCard hoverable>
+          <GlassCard hoverable onClick={() => navigate('/natal')}>
             <div className="flex items-center gap-4">
               <span className="text-4xl">🌌</span>
               <div>
                 <h3 className="font-semibold">Натальная карта</h3>
                 <p className="text-sm text-muted-gray">Твоя звёздная карта</p>
               </div>
+            </div>
+          </GlassCard>
+        </motion.div>
+
+        {/* Расчёт для друга - виральная механика */}
+        <motion.div variants={staggerItem}>
+          <GlassCard hoverable onClick={handleFriendChart} className="border-mystical-gold/30">
+            <div className="flex items-center gap-4">
+              <span className="text-4xl">🎁</span>
+              <div className="flex-1">
+                <h3 className="font-semibold">Расчёт для друга</h3>
+                <p className="text-sm text-muted-gray">Узнай судьбу близкого</p>
+              </div>
+              <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+                +бонус
+              </span>
             </div>
           </GlassCard>
         </motion.div>
