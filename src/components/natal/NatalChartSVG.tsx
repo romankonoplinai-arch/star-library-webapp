@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 
 export interface Planet {
@@ -39,6 +39,81 @@ export function NatalChartSVG({
 }: NatalChartSVGProps) {
   const [hoveredPlanet, setHoveredPlanet] = useState<string | null>(null)
 
+  // Zoom/Pan state
+  const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStart = useRef({ x: 0, y: 0 })
+  const lastTouchDist = useRef(0)
+
+  // Helper: get distance between two touches
+  const getTouchDistance = (touches: React.TouchList) => {
+    const dx = touches[0].clientX - touches[1].clientX
+    const dy = touches[0].clientY - touches[1].clientY
+    return Math.sqrt(dx * dx + dy * dy)
+  }
+
+  // Mouse wheel zoom
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault()
+    const delta = e.deltaY > 0 ? 0.9 : 1.1
+    setZoom(z => Math.min(Math.max(z * delta, 0.5), 3))
+  }, [])
+
+  // Mouse drag handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return // Left click only
+    setIsDragging(true)
+    dragStart.current = { x: e.clientX - pan.x, y: e.clientY - pan.y }
+  }, [pan])
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging) return
+    setPan({ x: e.clientX - dragStart.current.x, y: e.clientY - dragStart.current.y })
+  }, [isDragging])
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false)
+  }, [])
+
+  // Touch handlers for mobile
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      lastTouchDist.current = getTouchDistance(e.touches)
+    } else if (e.touches.length === 1) {
+      setIsDragging(true)
+      dragStart.current = { x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y }
+    }
+  }, [pan])
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      // Pinch zoom
+      const dist = getTouchDistance(e.touches)
+      if (lastTouchDist.current > 0) {
+        const scale = dist / lastTouchDist.current
+        setZoom(z => Math.min(Math.max(z * scale, 0.5), 3))
+      }
+      lastTouchDist.current = dist
+    } else if (e.touches.length === 1 && isDragging) {
+      // Pan
+      setPan({ x: e.touches[0].clientX - dragStart.current.x, y: e.touches[0].clientY - dragStart.current.y })
+    }
+  }, [isDragging])
+
+  const handleTouchEnd = useCallback(() => {
+    setIsDragging(false)
+    lastTouchDist.current = 0
+  }, [])
+
+  // Double click/tap to reset
+  const handleDoubleClick = useCallback(() => {
+    setZoom(1)
+    setPan({ x: 0, y: 0 })
+  }, [])
+
+  const isZoomed = zoom !== 1 || pan.x !== 0 || pan.y !== 0
+
   const size = 320
   const center = size / 2
   const outerRadius = size / 2 - 10
@@ -57,24 +132,50 @@ export function NatalChartSVG({
   }
 
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="w-full max-w-[320px] mx-auto">
-      {/* Градиент фона */}
-      <defs>
-        <radialGradient id="cosmicGradient">
-          <stop offset="0%" stopColor="#1a1033" />
-          <stop offset="100%" stopColor="#0A0812" />
-        </radialGradient>
-      </defs>
+    <div className="relative w-full max-w-[320px] mx-auto">
+      {/* Reset button */}
+      {isZoomed && (
+        <button
+          onClick={handleDoubleClick}
+          className="absolute top-2 right-2 z-10 px-2 py-1 text-xs bg-cosmic-black/80 border border-mystical-gold/30 rounded text-mystical-gold hover:bg-cosmic-black"
+        >
+          Сброс
+        </button>
+      )}
 
-      {/* Фон */}
-      <circle
-        cx={center}
-        cy={center}
-        r={outerRadius}
-        fill="url(#cosmicGradient)"
-        stroke="rgba(180,162,112,0.3)"
-        strokeWidth="1"
-      />
+      <svg
+        viewBox={`0 0 ${size} ${size}`}
+        className="w-full touch-none"
+        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+        onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onDoubleClick={handleDoubleClick}
+      >
+        {/* Градиент фона */}
+        <defs>
+          <radialGradient id="cosmicGradient">
+            <stop offset="0%" stopColor="#1a1033" />
+            <stop offset="100%" stopColor="#0A0812" />
+          </radialGradient>
+        </defs>
+
+        {/* Transform group for zoom/pan */}
+        <g transform={`translate(${center + pan.x}, ${center + pan.y}) scale(${zoom}) translate(${-center}, ${-center})`}>
+          {/* Фон */}
+          <circle
+            cx={center}
+            cy={center}
+            r={outerRadius}
+            fill="url(#cosmicGradient)"
+            stroke="rgba(180,162,112,0.3)"
+            strokeWidth="1"
+          />
 
       {/* Зодиакальный круг (12 секторов) */}
       {ZODIAC_SIGNS.map((sign, i) => {
@@ -172,17 +273,19 @@ export function NatalChartSVG({
         )
       })}
 
-      {/* Асцендент маркер */}
-      <text
-        x={degToCoord(0, outerRadius - 5).x - 15}
-        y={degToCoord(0, outerRadius - 5).y}
-        fill="#FFD700"
-        fontSize="10"
-        fontWeight="bold"
-      >
-        ASC
-      </text>
-    </svg>
+          {/* Асцендент маркер */}
+          <text
+            x={degToCoord(0, outerRadius - 5).x - 15}
+            y={degToCoord(0, outerRadius - 5).y}
+            fill="#FFD700"
+            fontSize="10"
+            fontWeight="bold"
+          >
+            ASC
+          </text>
+        </g>
+      </svg>
+    </div>
   )
 }
 
