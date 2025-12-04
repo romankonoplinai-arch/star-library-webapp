@@ -110,6 +110,26 @@ export interface TarotCardData {
   image_url: string
 }
 
+export interface DailySpreadCard {
+  id: number
+  name: string
+  name_ru: string
+  arcana: string
+  suit: string | null
+  reversed: boolean
+  keywords: string[]
+  image: string
+  position: number
+  position_name: string
+  position_meaning: string
+}
+
+export interface DailySpreadResponse {
+  success: boolean
+  date: string
+  cards: DailySpreadCard[]
+}
+
 export interface CardInSpread {
   card: TarotCardData
   position: number
@@ -171,6 +191,11 @@ class ApiClient {
   // Daily Hub
   async getDailyHub(): Promise<DailyHubResponse> {
     return this.fetch<DailyHubResponse>('/daily-hub')
+  }
+
+  // Daily Spread (5 cards)
+  async getDailySpread(): Promise<DailySpreadResponse> {
+    return this.fetch<DailySpreadResponse>('/daily-spread')
   }
 
   // Natal Chart (full API response)

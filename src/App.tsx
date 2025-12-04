@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { HomePage, TarotPage, NatalChartPage, ProfilePage, WelcomePage, DailyPage, FriendChartPage } from '@/pages'
 import { CelticCrossPage } from '@/pages/CelticCrossPage'
 import { ThreeCardPage } from '@/pages/ThreeCardPage'
+import { DailySpreadPage } from '@/pages/DailySpreadPage'
 import { Navigation } from '@/components/Navigation'
 import { StarsBackground } from '@/components/background'
 import { useTelegram } from '@/hooks'
@@ -72,6 +73,7 @@ function AppContent() {
         <Route path="/tarot" element={<TarotPage />} />
         <Route path="/celtic-cross" element={<CelticCrossPage />} />
         <Route path="/three-card" element={<ThreeCardPage />} />
+        <Route path="/daily-spread" element={<DailySpreadPage />} />
         <Route path="/natal" element={<NatalChartPage />} />
         <Route path="/friend" element={<FriendChartPage />} />
         <Route path="/profile" element={<ProfilePage />} />
