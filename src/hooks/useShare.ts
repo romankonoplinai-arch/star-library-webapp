@@ -14,25 +14,33 @@ export function useShare() {
       return
     }
 
+    console.log('Sharing text:', text)
+
+    // Try switchInlineQuery first (best for sharing in Telegram)
+    if (typeof webApp.switchInlineQuery === 'function') {
+      try {
+        // Truncate text if too long for inline query
+        const shortText = text.length > 256 ? text.slice(0, 253) + '...' : text
+        webApp.switchInlineQuery(shortText, ['users', 'groups', 'channels'])
+        return
+      } catch (e) {
+        console.error('switchInlineQuery failed:', e)
+      }
+    }
+
     // Build share URL for Telegram
     const shareUrl = url
       ? `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`
       : `https://t.me/share/url?text=${encodeURIComponent(text)}`
 
-    console.log('Sharing via Telegram:', shareUrl)
-
-    // Use openTelegramLink to open share dialog
+    // Try openTelegramLink
     if (typeof webApp.openTelegramLink === 'function') {
       try {
         webApp.openTelegramLink(shareUrl)
+        return
       } catch (e) {
         console.error('openTelegramLink failed:', e)
-        // Try switchInlineQuery as fallback
-        if (typeof webApp.switchInlineQuery === 'function') {
-          webApp.switchInlineQuery(text, ['users', 'groups', 'channels'])
-        }
       }
-      return
     }
 
     // Fallback to openLink
