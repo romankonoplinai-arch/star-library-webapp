@@ -58,7 +58,7 @@ function AppContent() {
 
   // Show main app
   return (
-    <>
+    <div className="relative z-10">
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/daily" element={<DailyPage />} />
@@ -70,7 +70,7 @@ function AppContent() {
         <Route path="/profile" element={<ProfilePage />} />
       </Routes>
       <Navigation />
-    </>
+    </div>
   )
 }
 

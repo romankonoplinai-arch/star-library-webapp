@@ -68,7 +68,7 @@ export function StarsBackground() {
   return (
     <Particles
       id="tsparticles"
-      className="fixed inset-0 -z-10"
+      className="fixed inset-0 z-0 pointer-events-none"
       options={options}
     />
   )
