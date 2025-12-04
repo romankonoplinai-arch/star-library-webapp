@@ -4,6 +4,8 @@ import {
   ZODIAC_SIGNS,
   HOUSES_INFO,
   PLANET_IN_SIGN,
+  PLANET_EXTENDED,
+  RETROGRADE_INFO,
   formatDegree,
   getSignFromDegree,
 } from '@/lib/natalData'
@@ -30,6 +32,8 @@ export function PlanetModal({
   const sign = ZODIAC_SIGNS[signKey as keyof typeof ZODIAC_SIGNS]
   const houseInfo = HOUSES_INFO.find((h) => h.house === house)
   const interpretation = PLANET_IN_SIGN[planetName]?.[signKey]
+  const extended = PLANET_EXTENDED[planetName]?.[signKey]
+  const retroInfo = retrograde ? RETROGRADE_INFO[planetName] : null
 
   if (!planet || !sign) return null
 
@@ -76,7 +80,7 @@ export function PlanetModal({
                     </h2>
                     <p className="text-white/80 text-sm">
                       {planet.theme} • Дом {house}
-                      {retrograde && <span className="text-red-300 font-bold ml-2">R</span>}
+                      {retrograde && <span className="text-red-300 font-bold ml-2">⟲ R</span>}
                     </p>
                   </div>
                   {/* Close button */}
@@ -102,12 +106,64 @@ export function PlanetModal({
                   )}
                 </div>
 
-                {/* Main interpretation */}
+                {/* Section 1: Что это значит */}
                 {interpretation && (
-                  <div className="bg-gradient-to-br from-accent-purple/10 to-mystical-gold/10 rounded-xl p-4 border border-white/5">
-                    <p className="text-soft-white leading-relaxed">
-                      {interpretation}
-                    </p>
+                  <div>
+                    <h3 className="text-mystical-gold text-sm font-semibold mb-2">
+                      ✨ Что это значит
+                    </h3>
+                    <div className="bg-gradient-to-br from-accent-purple/10 to-mystical-gold/10 rounded-xl p-4 border border-white/5">
+                      <p className="text-soft-white leading-relaxed">
+                        {interpretation}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Section 2: Как это проявляется */}
+                {extended?.manifestations && (
+                  <div>
+                    <h3 className="text-mystical-gold text-sm font-semibold mb-2">
+                      🔮 Как это проявляется
+                    </h3>
+                    <div className="bg-white/5 rounded-xl p-4 space-y-2">
+                      {extended.manifestations.map((item, i) => (
+                        <p key={i} className="text-soft-white/90 text-sm leading-relaxed">
+                          {item}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Section 3: Совет от звёзд */}
+                {extended?.advice && (
+                  <div>
+                    <h3 className="text-mystical-gold text-sm font-semibold mb-2">
+                      🌟 Совет от звёзд
+                    </h3>
+                    <div className="bg-gradient-to-r from-mystical-gold/10 to-transparent rounded-xl p-4 border-l-2 border-mystical-gold">
+                      <p className="text-soft-white leading-relaxed italic">
+                        {extended.advice}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Retrograde explanation */}
+                {retroInfo && (
+                  <div>
+                    <h3 className="text-red-400 text-sm font-semibold mb-2">
+                      ⟲ {retroInfo.title}
+                    </h3>
+                    <div className="bg-red-500/10 rounded-xl p-4 border border-red-500/20">
+                      <p className="text-soft-white/90 text-sm mb-2">
+                        {retroInfo.meaning}
+                      </p>
+                      <p className="text-soft-white text-sm italic">
+                        💡 {retroInfo.advice}
+                      </p>
+                    </div>
                   </div>
                 )}
 

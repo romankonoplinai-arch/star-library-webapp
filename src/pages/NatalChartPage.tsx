@@ -176,6 +176,21 @@ export function NatalChartPage() {
           </button>
         </motion.header>
 
+        {/* Intro Text */}
+        <motion.div variants={staggerItem}>
+          <GlassCard className="p-4 bg-gradient-to-br from-accent-purple/10 to-mystical-gold/10">
+            <p className="text-soft-white text-sm leading-relaxed">
+              <span className="text-mystical-gold font-semibold">Натальная карта</span> — это космический портрет момента твоего рождения. Она показывает:
+            </p>
+            <ul className="text-soft-white/80 text-xs mt-2 space-y-1">
+              <li>☉ <span className="text-mystical-gold">Солнце</span> — кто ты на самом деле</li>
+              <li>☽ <span className="text-mystical-gold">Луна</span> — как ты чувствуешь</li>
+              <li>🪐 <span className="text-mystical-gold">Планеты</span> — разные грани личности</li>
+              <li>🏠 <span className="text-mystical-gold">Дома</span> — сферы жизни</li>
+            </ul>
+          </GlassCard>
+        </motion.div>
+
         {/* Big Three */}
         <motion.div variants={staggerItem}>
           <GlassCard className="p-3">
@@ -217,6 +232,9 @@ export function NatalChartPage() {
               ascendant={ascendant}
               onPlanetClick={(planet) => handlePlanetSelect(planet.name)}
             />
+            <p className="text-center text-muted-gray text-xs mt-2">
+              👆 Нажми на планету для подробного описания
+            </p>
           </GlassCard>
         </motion.div>
 

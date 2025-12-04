@@ -19,9 +19,16 @@ function AppContent() {
   useEffect(() => {
     if (!isTelegramReady) return
 
+    // Debug: log initData
+    console.log('[App] initDataRaw:', initDataRaw ? `${initDataRaw.substring(0, 50)}...` : 'EMPTY')
+    console.log('[App] Telegram WebApp:', window.Telegram?.WebApp ? 'EXISTS' : 'NOT FOUND')
+
     // Передаём initData в API клиент
     if (initDataRaw) {
       api.setInitData(initDataRaw)
+      console.log('[App] initData set to API client')
+    } else {
+      console.warn('[App] initDataRaw is empty - API calls will fail auth')
     }
 
     // Загружаем данные пользователя с backend (не блокирует UI)
