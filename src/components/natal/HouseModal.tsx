@@ -7,6 +7,31 @@ import {
   formatDegree,
   getSignFromDegree,
 } from '@/lib/natalData'
+import { useUserStore } from '@/stores'
+
+// Персональные обращения от персонажей для домов
+const CHARACTER_HOUSE_INTROS: Record<string, { emoji: string; greeting: string }> = {
+  lunara: {
+    emoji: '🌙',
+    greeting: 'Давай вместе исследуем эту сферу твоей жизни...'
+  },
+  marsik: {
+    emoji: '🔥',
+    greeting: 'Ого, давай посмотрим как эта зона жизни у тебя работает!'
+  },
+  selena: {
+    emoji: '🌑',
+    greeting: 'Здесь скрыты важные уроки твоей души...'
+  },
+  mercury: {
+    emoji: '✨',
+    greeting: 'Ух ты! Этот дом расскажет кое-что интересное!'
+  },
+  aristarch: {
+    emoji: '🌌',
+    greeting: 'Древняя мудрость гласит: знай свои дома, и познаешь судьбу...'
+  },
+}
 
 // Градиенты по стихиям
 const ELEMENT_GRADIENTS: Record<string, string> = {
@@ -30,6 +55,8 @@ export function HouseModal({
   planets,
   onClose,
 }: HouseModalProps) {
+  const defaultCharacter = useUserStore((s) => s.defaultCharacter)
+
   if (house === null) return null
 
   const houseInfo = HOUSES_INFO.find((h) => h.house === house)
@@ -37,6 +64,7 @@ export function HouseModal({
   const signKey = getSignFromDegree(cusp)
   const sign = ZODIAC_SIGNS[signKey as keyof typeof ZODIAC_SIGNS]
   const houseInSign = HOUSE_IN_SIGN[house]?.[signKey]
+  const charIntro = CHARACTER_HOUSE_INTROS[defaultCharacter] || CHARACTER_HOUSE_INTROS.lunara
 
   if (!houseInfo || !sign) return null
 
@@ -99,6 +127,14 @@ export function HouseModal({
 
               {/* Content */}
               <div className="p-4 space-y-4">
+                {/* Character greeting */}
+                <div className="flex items-start gap-2 px-3 py-2 bg-gradient-to-r from-mystical-gold/10 to-transparent rounded-xl border-l-2 border-mystical-gold/50">
+                  <span className="text-lg">{charIntro.emoji}</span>
+                  <p className="text-soft-white/90 text-sm italic">
+                    {charIntro.greeting}
+                  </p>
+                </div>
+
                 {/* Position */}
                 <div className="flex items-center gap-3 px-3 py-2 bg-white/5 rounded-xl text-sm">
                   <span className="text-mystical-gold font-mono text-base">

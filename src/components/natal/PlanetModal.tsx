@@ -9,6 +9,31 @@ import {
   formatDegree,
   getSignFromDegree,
 } from '@/lib/natalData'
+import { useUserStore } from '@/stores'
+
+// Персональные обращения от персонажей
+const CHARACTER_INTROS: Record<string, { emoji: string; greeting: string }> = {
+  lunara: {
+    emoji: '🌙',
+    greeting: 'Милый путник, позволь мне нежно раскрыть тайну твоей души...'
+  },
+  marsik: {
+    emoji: '🔥',
+    greeting: 'Эй, слушай! Давай разберёмся что у тебя тут интересного!'
+  },
+  selena: {
+    emoji: '🌑',
+    greeting: 'Я вижу глубины твоей души... Позволь показать что скрыто внутри.'
+  },
+  mercury: {
+    emoji: '✨',
+    greeting: 'О, интересно! Сейчас расскажу тебе кое-что любопытное!'
+  },
+  aristarch: {
+    emoji: '🌌',
+    greeting: 'Как учили древние мудрецы, познание себя — начало всякой мудрости...'
+  },
+}
 
 interface PlanetModalProps {
   planetName: string | null
@@ -25,6 +50,8 @@ export function PlanetModal({
   retrograde,
   onClose,
 }: PlanetModalProps) {
+  const defaultCharacter = useUserStore((s) => s.defaultCharacter)
+
   if (!planetName) return null
 
   const planet = PLANETS_INFO[planetName as keyof typeof PLANETS_INFO]
@@ -34,6 +61,7 @@ export function PlanetModal({
   const interpretation = PLANET_IN_SIGN[planetName]?.[signKey]
   const extended = PLANET_EXTENDED[planetName]?.[signKey]
   const retroInfo = retrograde ? RETROGRADE_INFO[planetName] : null
+  const charIntro = CHARACTER_INTROS[defaultCharacter] || CHARACTER_INTROS.lunara
 
   if (!planet || !sign) return null
 
@@ -95,6 +123,14 @@ export function PlanetModal({
 
               {/* Content */}
               <div className="p-4 space-y-4">
+                {/* Character greeting */}
+                <div className="flex items-start gap-2 px-3 py-2 bg-gradient-to-r from-mystical-gold/10 to-transparent rounded-xl border-l-2 border-mystical-gold/50">
+                  <span className="text-lg">{charIntro.emoji}</span>
+                  <p className="text-soft-white/90 text-sm italic">
+                    {charIntro.greeting}
+                  </p>
+                </div>
+
                 {/* Position */}
                 <div className="flex items-center gap-3 px-3 py-2 bg-white/5 rounded-xl text-sm">
                   <span className="text-mystical-gold font-mono text-base">
