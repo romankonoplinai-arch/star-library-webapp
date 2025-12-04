@@ -254,11 +254,37 @@ export function NatalChartPage() {
           <button
             onClick={() => {
               haptic.light()
-              const shareText = `Моя натальная карта 🌌\n\n☉ Солнце: ${sunSign?.nameRu}\n☽ Луна: ${moonSign?.nameRu}\n⬆ Асцендент: ${ascSign?.nameRu}\n\nПланеты в знаках:\n${planets.map(p => {
+              const botUsername = 'Star_library_robot'
+              const deepLink = `https://t.me/${botUsername}?start=natal`
+
+              // Format planet positions nicely
+              const planetsList = planets.slice(0, 7).map(p => {
                 const sign = ZODIAC_SIGNS[getSignFromDegree(p.degree) as keyof typeof ZODIAC_SIGNS]
-                return `${p.name}: ${sign?.nameRu || ''}`
-              }).join('\n')}`
-              share(shareText)
+                const planetNames: Record<string, string> = {
+                  'Sun': '☉ Солнце',
+                  'Moon': '☽ Луна',
+                  'Mercury': '☿ Меркурий',
+                  'Venus': '♀ Венера',
+                  'Mars': '♂ Марс',
+                  'Jupiter': '♃ Юпитер',
+                  'Saturn': '♄ Сатурн'
+                }
+                return `${planetNames[p.name] || p.name}: ${sign?.nameRu || ''}`
+              }).join('\n')
+
+              const shareText = `🌌 Моя натальная карта
+
+✨ Большая тройка:
+☉ Солнце: ${sunSign?.nameRu}
+☽ Луна: ${moonSign?.nameRu}
+⬆ Асцендент: ${ascSign?.nameRu}
+
+🪐 Планеты в знаках:
+${planetsList}
+
+🔮 Узнай свою судьбу:`
+
+              share(shareText, deepLink)
             }}
             className="text-mystical-gold hover:underline flex items-center gap-1 mx-auto"
           >
