@@ -59,11 +59,13 @@ export function HouseModal({
 
   if (house === null) return null
 
+  // Ascendant (house=0) uses first house data (house=1)
+  const dataHouse = house === 0 ? 1 : house
   const houseInfo = HOUSES_INFO.find((h) => h.house === house)
-  const extended = HOUSES_EXTENDED[house]
+  const extended = HOUSES_EXTENDED[dataHouse]
   const signKey = getSignFromDegree(cusp)
   const sign = ZODIAC_SIGNS[signKey as keyof typeof ZODIAC_SIGNS]
-  const houseInSign = HOUSE_IN_SIGN[house]?.[signKey]
+  const houseInSign = HOUSE_IN_SIGN[dataHouse]?.[signKey]
   const charIntro = CHARACTER_HOUSE_INTROS[defaultCharacter] || CHARACTER_HOUSE_INTROS.lunara
 
   if (!houseInfo || !sign) return null
@@ -148,7 +150,7 @@ export function HouseModal({
                 {houseInSign && (
                   <div>
                     <h3 className="text-mystical-gold text-sm font-semibold mb-2">
-                      🌟 Твой {house} дом в {sign.nameRu}
+                      🌟 {house === 0 ? `Твой Асцендент в ${sign.nameRu}` : `Твой ${house} дом в ${sign.nameRu}`}
                     </h3>
                     <div className="bg-gradient-to-br from-accent-purple/10 to-mystical-gold/10 rounded-xl p-4 border border-white/5">
                       <p className="text-soft-white leading-relaxed">
@@ -161,7 +163,7 @@ export function HouseModal({
                 {/* General house description */}
                 <div>
                   <h3 className="text-mystical-gold text-sm font-semibold mb-2">
-                    ✨ О {house} доме
+                    ✨ {house === 0 ? 'Об Асценденте' : `О ${house} доме`}
                   </h3>
                   <div className="bg-white/5 rounded-xl p-4 border border-white/5">
                     <p className="text-soft-white/80 leading-relaxed text-sm">
