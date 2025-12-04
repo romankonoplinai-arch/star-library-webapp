@@ -34,8 +34,6 @@ export function DailySpreadPage() {
 
     try {
       const response = await api.getDailySpread()
-      console.log('[DailySpread] API response:', JSON.stringify(response, null, 2))
-      console.log('[DailySpread] Cards count:', response.cards?.length)
       setSpread(response)
       haptic.success()
     } catch (err: any) {
@@ -233,13 +231,23 @@ export function DailySpreadPage() {
           <motion.div variants={staggerItem} className="text-center">
             <button
               onClick={() => {
-                haptic.light()
-                const cardsText = spread?.cards.map((c) => c.name_ru).join(', ')
-                share(`Мой расклад дня: ${cardsText} 🌟`)
+                haptic.medium()
+                const positions = spread?.cards.map((c) =>
+                  `${c.position_name}: ${c.name_ru}${c.reversed ? ' ⟲' : ''}`
+                ).join('\n')
+
+                const shareText = `🌟 Мой расклад дня
+
+🎴 Карты:
+${positions}
+
+🔮 Узнай свою судьбу в @Star_library_robot`
+
+                share(shareText)
               }}
-              className="text-mystical-gold hover:underline flex items-center gap-1 mx-auto"
+              className="px-5 py-2.5 bg-mystical-gold/20 hover:bg-mystical-gold/40 rounded-xl text-sm font-medium transition-colors border border-mystical-gold/40 text-mystical-gold"
             >
-              <span>↗️</span> Поделиться
+              ✨ Поделиться
             </button>
           </motion.div>
         )}
@@ -262,8 +270,6 @@ function CardWithPosition({
 }) {
   // Use image path from API directly (it's relative like /cards/Cards-png/...)
   const imageUrl = `${import.meta.env.BASE_URL}${card.image.replace(/^\//, '')}`
-
-  console.log(`[Card ${card.position}] image from API: "${card.image}", final URL: "${imageUrl}"`)
 
   return (
     <motion.div
