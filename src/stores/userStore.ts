@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type SubscriptionTier = 'free' | 'premium' | 'vip'
+export type SubscriptionTier = 'free' | 'vip'
 
 interface UserState {
   telegramId: number | null
@@ -92,8 +92,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     }),
 
   isPremium: () => {
-    const tier = get().subscriptionTier
-    return tier === 'premium' || tier === 'vip'
+    return get().subscriptionTier === 'vip'
   },
 
   isVip: () => get().subscriptionTier === 'vip',

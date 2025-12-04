@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useHaptic } from '@/hooks'
 import { cardFlip } from '@/lib/animations'
@@ -31,6 +31,13 @@ export function TarotCard({
 }: TarotCardProps) {
   const [isFlipped, setIsFlipped] = useState(revealed)
   const haptic = useHaptic()
+
+  // Sync isFlipped with revealed prop when it changes
+  useEffect(() => {
+    if (revealed && !isFlipped) {
+      setIsFlipped(true)
+    }
+  }, [revealed])
 
   const sizes = {
     sm: { width: 80, height: 140 },

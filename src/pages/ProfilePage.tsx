@@ -18,7 +18,6 @@ const CHARACTERS = [
 
 const TIER_INFO = {
   free: { name: 'Free', color: 'text-muted-gray', badge: '🌱' },
-  premium: { name: 'Premium', color: 'text-accent-purple', badge: '⭐' },
   vip: { name: 'VIP', color: 'text-mystical-gold', badge: '👑' },
 }
 
@@ -285,12 +284,13 @@ export function ProfilePage() {
               {subscriptionTier === 'free' && (
                 <div className="pt-3 border-t border-white/10">
                   <p className="text-sm text-muted-gray mb-2">
-                    Premium включает:
+                    VIP включает:
                   </p>
                   <ul className="text-sm space-y-1">
                     <li>✨ Персональные транзиты</li>
                     <li>🎴 Celtic Cross расклад</li>
                     <li>💬 Больше сообщений AI</li>
+                    <li>🌟 Глубокая натальная карта</li>
                   </ul>
                 </div>
               )}

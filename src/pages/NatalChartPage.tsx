@@ -38,6 +38,7 @@ export function NatalChartPage() {
   const birthDate = useUserStore((s) => s.birthDate)
   const birthPlace = useUserStore((s) => s.birthPlace)
   const birthTime = useUserStore((s) => s.birthTime)
+  const natalChartLevel = useUserStore((s) => s.natalChartLevel)
 
   useBackButton(() => navigate('/'))
 
@@ -175,9 +176,12 @@ export function NatalChartPage() {
                   Натальная карта
                 </span>
               </h1>
+              <span className="ml-1 px-2 py-0.5 bg-mystical-gold/20 rounded-full text-[10px] font-medium text-mystical-gold">
+                Lv.{natalChartLevel}
+              </span>
             </div>
             <p className="text-[10px] text-muted-gray mt-1">
-              Нажмите, чтобы открыть подробный разбор
+              Изучай астрологию — открывай секреты звёзд
             </p>
           </button>
         </motion.header>
@@ -273,15 +277,23 @@ export function NatalChartPage() {
           </GlassCard>
         </motion.div>
 
-        {/* Share Button */}
-        <motion.div variants={staggerItem} className="text-center">
+        {/* Action Buttons */}
+        <motion.div variants={staggerItem} className="flex gap-3 justify-center">
+          <button
+            onClick={() => {
+              haptic.medium()
+              navigate('/natal-form')
+            }}
+            className="px-5 py-2.5 bg-accent-purple/30 hover:bg-accent-purple/50 rounded-xl text-sm font-medium transition-colors border border-accent-purple/40"
+          >
+            🔄 Пересчитать
+          </button>
           <button
             onClick={() => {
               haptic.light()
               const botUsername = 'Star_library_robot'
               const deepLink = `https://t.me/${botUsername}?start=natal`
 
-              // Format planet positions nicely
               const planetsList = planets.slice(0, 7).map(p => {
                 const sign = ZODIAC_SIGNS[getSignFromDegree(p.degree) as keyof typeof ZODIAC_SIGNS]
                 const planetNames: Record<string, string> = {
@@ -310,9 +322,9 @@ ${planetsList}
 
               share(shareText, deepLink)
             }}
-            className="text-mystical-gold hover:underline flex items-center gap-1 mx-auto"
+            className="px-5 py-2.5 bg-mystical-gold/20 hover:bg-mystical-gold/40 rounded-xl text-sm font-medium transition-colors border border-mystical-gold/40 text-mystical-gold"
           >
-            <span>↗️</span> Поделиться картой
+            ✨ Поделиться
           </button>
         </motion.div>
 

@@ -34,6 +34,8 @@ export function DailySpreadPage() {
 
     try {
       const response = await api.getDailySpread()
+      console.log('[DailySpread] API response:', JSON.stringify(response, null, 2))
+      console.log('[DailySpread] Cards count:', response.cards?.length)
       setSpread(response)
       haptic.success()
     } catch (err: any) {
@@ -260,6 +262,8 @@ function CardWithPosition({
 }) {
   // Use image path from API directly (it's relative like /cards/Cards-png/...)
   const imageUrl = `${import.meta.env.BASE_URL}${card.image.replace(/^\//, '')}`
+
+  console.log(`[Card ${card.position}] image from API: "${card.image}", final URL: "${imageUrl}"`)
 
   return (
     <motion.div

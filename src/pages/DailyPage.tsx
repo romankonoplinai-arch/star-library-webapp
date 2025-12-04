@@ -8,10 +8,18 @@ import { staggerContainer, staggerItem, fadeUp } from '@/lib/animations'
 
 const CHARACTER_EMOJIS: Record<string, string> = {
   lunara: '🌙',
-  marsik: '⚡',
-  selena: '✨',
-  mercury: '💫',
-  aristarch: '📚'
+  marsik: '🔥',
+  selena: '🌑',
+  mercury: '✨',
+  aristarch: '🌌'
+}
+
+const CHARACTER_NAMES: Record<string, string> = {
+  lunara: 'Лунары',
+  marsik: 'Марсика',
+  selena: 'Селены',
+  mercury: 'Меркурия',
+  aristarch: 'Аристарха'
 }
 
 export function DailyPage() {
@@ -69,7 +77,7 @@ export function DailyPage() {
   }
 
   const characterEmoji = CHARACTER_EMOJIS[dailyData.horoscope.character] || '✨'
-  const characterName = dailyData.horoscope.character.charAt(0).toUpperCase() + dailyData.horoscope.character.slice(1)
+  const characterName = CHARACTER_NAMES[dailyData.horoscope.character] || 'Лунары'
 
   return (
     <div className="min-h-screen px-4 py-6 pb-24">
@@ -168,9 +176,17 @@ export function DailyPage() {
               <div className="text-center py-6">
                 <span className="text-4xl mb-3 block">🌟</span>
                 <h3 className="text-lg font-semibold mb-2">Персональные транзиты</h3>
-                <p className="text-soft-white/70 text-sm mb-4">
-                  Чтобы видеть персональные транзиты, заполни данные рождения в Натальной карте
+                <p className="text-soft-white/70 text-sm mb-3">
+                  Транзиты — это текущие положения планет относительно твоей натальной карты.
                 </p>
+                <p className="text-soft-white/60 text-xs mb-4">
+                  Они показывают какие энергии активны именно для тебя сейчас и помогают понять лучшие моменты для действий.
+                </p>
+                <div className="pt-3 border-t border-white/10">
+                  <p className="text-muted-gray text-xs">
+                    Заполни данные рождения в Натальной карте, чтобы видеть свои транзиты
+                  </p>
+                </div>
               </div>
             </GlassCard>
           </motion.div>
