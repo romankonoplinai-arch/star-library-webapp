@@ -173,7 +173,7 @@ export function ThreeCardPage() {
             </motion.div>
 
             {/* Action Buttons */}
-            <motion.div variants={staggerItem} className="flex flex-col gap-3 items-center">
+            <motion.div variants={staggerItem} className="flex gap-3 justify-center">
               <button
                 onClick={() => {
                   haptic.medium()
