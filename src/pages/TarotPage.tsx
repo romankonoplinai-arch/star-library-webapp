@@ -3,9 +3,9 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { TarotCard } from '@/components/tarot'
 import { GlassCard, MagicButton } from '@/components/ui'
-import { useHaptic, useBackButton } from '@/hooks'
+import { useHaptic, useBackButton, useShare } from '@/hooks'
 import { useUserStore } from '@/stores'
-import { fadeUp, staggerContainer, staggerItem } from '@/lib/animations'
+import { staggerContainer, staggerItem } from '@/lib/animations'
 import { getTarotCardImage } from '@/lib/tarot'
 
 // Интерпретации карт (прямое и перевёрнутое положение)
@@ -137,6 +137,7 @@ interface DrawnCard {
 export function TarotPage() {
   const navigate = useNavigate()
   const haptic = useHaptic()
+  const { share } = useShare()
   const isPremium = useUserStore((s) => s.isPremium)
   const [drawnCard, setDrawnCard] = useState<DrawnCard | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
@@ -171,6 +172,21 @@ export function TarotPage() {
   const handleThreeCard = () => {
     haptic.light()
     navigate('/three-card')
+  }
+
+  const handleNewSpread = () => {
+    haptic.medium()
+    setDrawnCard(null)
+  }
+
+  const handleShare = () => {
+    if (!drawnCard) return
+    haptic.light()
+
+    const position = drawnCard.reversed ? ' (перевёрнутая)' : ''
+    const interpretation = CARD_INTERPRETATIONS[drawnCard.id]?.[drawnCard.reversed ? 'reversed' : 'upright'] || ''
+
+    share(`✨ Моя карта дня\n🃏 ${drawnCard.nameRu}${position}\n\n${interpretation}\n\n⭐ Звёздная Библиотека`)
   }
 
   return (
@@ -218,6 +234,22 @@ export function TarotPage() {
                   {CARD_INTERPRETATIONS[drawnCard.id]?.[drawnCard.reversed ? 'reversed' : 'upright'] ||
                     `${drawnCard.nameRu} несёт важное послание для тебя.`}
                 </p>
+
+                {/* Кнопки действий */}
+                <div className="flex gap-3 justify-center mt-5">
+                  <button
+                    onClick={handleNewSpread}
+                    className="px-4 py-2 bg-accent-purple/30 hover:bg-accent-purple/50 rounded-xl text-sm font-medium transition-colors border border-accent-purple/40"
+                  >
+                    🔄 Новый расклад
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="px-4 py-2 bg-mystical-gold/20 hover:bg-mystical-gold/40 rounded-xl text-sm font-medium transition-colors border border-mystical-gold/40 text-mystical-gold"
+                  >
+                    ✨ Поделиться
+                  </button>
+                </div>
               </motion.div>
             )}
           </GlassCard>
