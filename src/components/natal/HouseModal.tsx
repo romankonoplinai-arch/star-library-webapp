@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   HOUSES_INFO,
+  HOUSES_EXTENDED,
   ZODIAC_SIGNS,
   formatDegree,
   getSignFromDegree,
@@ -31,6 +32,7 @@ export function HouseModal({
   if (house === null) return null
 
   const houseInfo = HOUSES_INFO.find((h) => h.house === house)
+  const extended = HOUSES_EXTENDED[house]
   const signKey = getSignFromDegree(cusp)
   const sign = ZODIAC_SIGNS[signKey as keyof typeof ZODIAC_SIGNS]
 
@@ -105,11 +107,62 @@ export function HouseModal({
                 </div>
 
                 {/* Main description */}
-                <div className="bg-gradient-to-br from-accent-purple/10 to-mystical-gold/10 rounded-xl p-4 border border-white/5">
-                  <p className="text-soft-white leading-relaxed">
-                    {houseInfo.description}
-                  </p>
+                <div>
+                  <h3 className="text-mystical-gold text-sm font-semibold mb-2">
+                    ✨ Что это значит
+                  </h3>
+                  <div className="bg-gradient-to-br from-accent-purple/10 to-mystical-gold/10 rounded-xl p-4 border border-white/5">
+                    <p className="text-soft-white leading-relaxed">
+                      {houseInfo.description}
+                    </p>
+                  </div>
                 </div>
+
+                {/* Manifestations */}
+                {extended?.manifestations && (
+                  <div>
+                    <h3 className="text-mystical-gold text-sm font-semibold mb-2">
+                      🔮 За что отвечает
+                    </h3>
+                    <div className="bg-white/5 rounded-xl p-4 space-y-2">
+                      {extended.manifestations.map((item, i) => (
+                        <p key={i} className="text-soft-white/90 text-sm leading-relaxed">
+                          {item}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Questions */}
+                {extended?.questions && (
+                  <div>
+                    <h3 className="text-mystical-gold text-sm font-semibold mb-2">
+                      ❓ Ключевые вопросы
+                    </h3>
+                    <div className="bg-white/5 rounded-xl p-4 space-y-1">
+                      {extended.questions.map((q, i) => (
+                        <p key={i} className="text-soft-white/80 text-sm italic">
+                          «{q}»
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Advice */}
+                {extended?.advice && (
+                  <div>
+                    <h3 className="text-mystical-gold text-sm font-semibold mb-2">
+                      🌟 Совет от звёзд
+                    </h3>
+                    <div className="bg-gradient-to-r from-mystical-gold/10 to-transparent rounded-xl p-4 border-l-2 border-mystical-gold">
+                      <p className="text-soft-white leading-relaxed italic">
+                        {extended.advice}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Planets in house */}
                 {planets && planets.length > 0 && (
