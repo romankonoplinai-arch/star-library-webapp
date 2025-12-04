@@ -36,16 +36,22 @@ export function NatalChartPage() {
   const { share } = useShare()
   const isVip = useUserStore((s) => s.isVip)
   const birthDate = useUserStore((s) => s.birthDate)
+  const birthPlace = useUserStore((s) => s.birthPlace)
+  const birthTime = useUserStore((s) => s.birthTime)
 
   useBackButton(() => navigate('/'))
 
-  // Загрузка натальной карты
+  // Загрузка натальной карты - перезагружается при любом изменении данных рождения
   useEffect(() => {
     if (!birthDate) {
       setLoading(false)
       setError('Данные рождения не указаны')
       return
     }
+
+    setLoading(true)
+    setError(null)
+    setChartData(null)
 
     api.getNatalChartFull()
       .then((data) => {
@@ -60,7 +66,7 @@ export function NatalChartPage() {
         setError('Ошибка загрузки натальной карты')
       })
       .finally(() => setLoading(false))
-  }, [birthDate])
+  }, [birthDate, birthPlace, birthTime])
 
   const handlePlanetSelect = (planetName: string) => {
     haptic.light()

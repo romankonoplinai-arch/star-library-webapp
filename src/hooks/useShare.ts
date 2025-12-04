@@ -5,6 +5,12 @@ export function useShare() {
 
     if (!webApp) {
       console.warn('Telegram WebApp not available')
+      // Fallback for browser testing
+      if (navigator.share) {
+        navigator.share({ text, url }).catch(console.error)
+      } else {
+        alert(`Поделиться: ${text}`)
+      }
       return
     }
 
@@ -13,9 +19,19 @@ export function useShare() {
       ? `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`
       : `https://t.me/share/url?text=${encodeURIComponent(text)}`
 
+    console.log('Sharing via Telegram:', shareUrl)
+
     // Use openTelegramLink to open share dialog
     if (typeof webApp.openTelegramLink === 'function') {
-      webApp.openTelegramLink(shareUrl)
+      try {
+        webApp.openTelegramLink(shareUrl)
+      } catch (e) {
+        console.error('openTelegramLink failed:', e)
+        // Try switchInlineQuery as fallback
+        if (typeof webApp.switchInlineQuery === 'function') {
+          webApp.switchInlineQuery(text, ['users', 'groups', 'channels'])
+        }
+      }
       return
     }
 

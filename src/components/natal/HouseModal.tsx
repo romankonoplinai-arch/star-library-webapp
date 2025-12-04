@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   HOUSES_INFO,
   HOUSES_EXTENDED,
+  HOUSE_IN_SIGN,
   ZODIAC_SIGNS,
   formatDegree,
   getSignFromDegree,
@@ -35,6 +36,7 @@ export function HouseModal({
   const extended = HOUSES_EXTENDED[house]
   const signKey = getSignFromDegree(cusp)
   const sign = ZODIAC_SIGNS[signKey as keyof typeof ZODIAC_SIGNS]
+  const houseInSign = HOUSE_IN_SIGN[house]?.[signKey]
 
   if (!houseInfo || !sign) return null
 
@@ -106,13 +108,27 @@ export function HouseModal({
                   <span className="text-muted-gray">Куспид в {sign.nameRu}</span>
                 </div>
 
-                {/* Main description */}
+                {/* Personalized interpretation - House in Sign */}
+                {houseInSign && (
+                  <div>
+                    <h3 className="text-mystical-gold text-sm font-semibold mb-2">
+                      🌟 Твой {house} дом в {sign.nameRu}
+                    </h3>
+                    <div className="bg-gradient-to-br from-accent-purple/10 to-mystical-gold/10 rounded-xl p-4 border border-white/5">
+                      <p className="text-soft-white leading-relaxed">
+                        {houseInSign}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* General house description */}
                 <div>
                   <h3 className="text-mystical-gold text-sm font-semibold mb-2">
-                    ✨ Что это значит
+                    ✨ О {house} доме
                   </h3>
-                  <div className="bg-gradient-to-br from-accent-purple/10 to-mystical-gold/10 rounded-xl p-4 border border-white/5">
-                    <p className="text-soft-white leading-relaxed">
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/5">
+                    <p className="text-soft-white/80 leading-relaxed text-sm">
                       {houseInfo.description}
                     </p>
                   </div>

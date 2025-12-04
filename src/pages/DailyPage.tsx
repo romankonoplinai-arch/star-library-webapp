@@ -161,22 +161,16 @@ export function DailyPage() {
           </motion.div>
         )}
 
-        {/* VIP upgrade card если нет транзитов */}
-        {(!dailyData.transits || dailyData.transits.length === 0) && dailyData.tier !== 'vip' && (
+        {/* Подсказка если нет транзитов */}
+        {(!dailyData.transits || dailyData.transits.length === 0) && (
           <motion.div variants={staggerItem}>
             <GlassCard>
               <div className="text-center py-6">
-                <span className="text-4xl mb-3 block">🔮</span>
+                <span className="text-4xl mb-3 block">🌟</span>
                 <h3 className="text-lg font-semibold mb-2">Персональные транзиты</h3>
                 <p className="text-soft-white/70 text-sm mb-4">
-                  Доступно для VIP пользователей с натальной картой
+                  Чтобы видеть персональные транзиты, заполни данные рождения в Натальной карте
                 </p>
-                <button
-                  onClick={() => haptic.medium()}
-                  className="text-mystical-gold hover:text-mystical-gold/80 transition-colors text-sm"
-                >
-                  Узнать подробнее →
-                </button>
               </div>
             </GlassCard>
           </motion.div>

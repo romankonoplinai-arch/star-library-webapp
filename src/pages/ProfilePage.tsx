@@ -12,8 +12,8 @@ const CHARACTERS = [
   { id: 'lunara', name: 'Лунара', emoji: '🌙', desc: 'Мудрая и нежная' },
   { id: 'marsik', name: 'Марсик', emoji: '🔥', desc: 'Энергичный и прямой' },
   { id: 'selena', name: 'Селена', emoji: '🌑', desc: 'Глубинный психолог' },
-  { id: 'merkury', name: 'Меркурий', emoji: '✨', desc: 'Быстрый и остроумный' },
-  { id: 'aristarchus', name: 'Аристарх', emoji: '🌌', desc: 'Мудрый философ' },
+  { id: 'mercury', name: 'Меркурий', emoji: '✨', desc: 'Быстрый и остроумный' },
+  { id: 'aristarch', name: 'Аристарх', emoji: '🌌', desc: 'Мудрый философ' },
 ]
 
 const TIER_INFO = {
@@ -61,9 +61,19 @@ export function ProfilePage() {
 
   const tierInfo = TIER_INFO[subscriptionTier]
 
-  const handleCharacterSelect = (characterId: string) => {
+  const handleCharacterSelect = async (characterId: string) => {
     haptic.selection()
     setCharacter(characterId)
+
+    // Sync with server
+    try {
+      await api.fetch('/user/character', {
+        method: 'POST',
+        body: JSON.stringify({ character: characterId }),
+      })
+    } catch (err) {
+      console.error('Failed to save character:', err)
+    }
   }
 
   const handleUpgrade = () => {
