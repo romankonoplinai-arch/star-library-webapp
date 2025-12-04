@@ -190,22 +190,33 @@ export function CelticCrossPage() {
               </GlassCard>
             </motion.div>
 
-            {/* Reset Button */}
-            <motion.div variants={staggerItem} className="flex gap-4 justify-center">
+            {/* Action Buttons */}
+            <motion.div variants={staggerItem} className="flex flex-col gap-3 items-center">
               <button
                 onClick={() => {
-                  haptic.light()
-                  share(`Мой расклад Кельтский Крест 🔮`)
+                  haptic.medium()
+                  const positions = cards?.map((c) =>
+                    `${c.positionName}: ${c.card.nameRu}${c.card.reversed ? ' ⟲' : ''}`
+                  ).join('\n')
+
+                  const shareText = `🔮 Мой Кельтский Крест
+
+🎴 Карты:
+${positions}
+
+${question ? `❓ Вопрос: ${question}\n\n` : ''}🌟 Узнай свою судьбу в @Star_library_robot`
+
+                  share(shareText)
                 }}
-                className="text-mystical-gold hover:underline flex items-center gap-1"
+                className="px-5 py-2.5 bg-mystical-gold/20 hover:bg-mystical-gold/40 rounded-xl text-sm font-medium transition-colors border border-mystical-gold/40 text-mystical-gold"
               >
-                <span>↗️</span> Поделиться
+                ✨ Поделиться
               </button>
               <button
                 onClick={handleReset}
-                className="text-accent-purple hover:underline"
+                className="px-5 py-2.5 bg-accent-purple/20 hover:bg-accent-purple/40 rounded-xl text-sm font-medium transition-colors border border-accent-purple/40 text-accent-purple"
               >
-                Новый расклад
+                🔄 Новый расклад
               </button>
             </motion.div>
           </>
