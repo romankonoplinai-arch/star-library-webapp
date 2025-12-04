@@ -1,11 +1,17 @@
-import { useCallback, useMemo } from 'react'
-import Particles from '@tsparticles/react'
+import { useEffect, useState, useMemo } from 'react'
+import Particles, { initParticlesEngine } from '@tsparticles/react'
 import { loadSlim } from '@tsparticles/slim'
-import type { Engine, ISourceOptions } from '@tsparticles/engine'
+import type { ISourceOptions } from '@tsparticles/engine'
 
 export function StarsBackground() {
-  const particlesInit = useCallback(async (engine: Engine) => {
-    await loadSlim(engine)
+  const [init, setInit] = useState(false)
+
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine)
+    }).then(() => {
+      setInit(true)
+    })
   }, [])
 
   const options: ISourceOptions = useMemo(() => ({
@@ -55,11 +61,14 @@ export function StarsBackground() {
     detectRetina: true,
   }), [])
 
+  if (!init) {
+    return null
+  }
+
   return (
     <Particles
       id="tsparticles"
       className="fixed inset-0 -z-10"
-      init={particlesInit}
       options={options}
     />
   )
