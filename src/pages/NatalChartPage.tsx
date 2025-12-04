@@ -128,10 +128,13 @@ export function NatalChartPage() {
     retrograde: false,
   }))
 
-  const houses = chartData.chart.houses.map(h => ({
-    house: h.number,
-    cusp: h.cusp_longitude,
-  }))
+  // Сортируем дома по номеру, чтобы houses[0] = дом 1, houses[1] = дом 2, и т.д.
+  const houses = [...chartData.chart.houses]
+    .sort((a, b) => a.number - b.number)
+    .map(h => ({
+      house: h.number,
+      cusp: h.cusp_longitude,
+    }))
 
   const ascendant = chartData.chart.angles.ascendant.longitude
 
