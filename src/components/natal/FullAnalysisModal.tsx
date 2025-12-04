@@ -356,8 +356,17 @@ export function FullAnalysisModal({ isOpen, onClose, sunSign, moonSign, ascSign 
                       <button
                         onClick={() => {
                           haptic.light()
-                          const shareText = `✨ Моя натальная карта:\n\n🌟 Солнце: ${sunSign}\n🌙 Луна: ${moonSign}\n✨ Асцендент: ${ascSign}\n\nУзнай свою в Звёздной Библиотеке!`
-                          share(shareText)
+                          const botUsername = 'Star_library_robot'
+                          const deepLink = `https://t.me/${botUsername}?start=natal`
+                          const shareText = `🌌 Моя натальная карта
+
+✨ Большая тройка:
+☉ Солнце: ${sunSign}
+☽ Луна: ${moonSign}
+⬆ Асцендент: ${ascSign}
+
+🔮 Узнай свою судьбу:`
+                          share(shareText, deepLink)
                         }}
                         className="px-2 py-1.5 text-xs rounded-lg bg-mystical-gold/20 hover:bg-mystical-gold/30 transition-colors flex-shrink-0 text-mystical-gold"
                       >
