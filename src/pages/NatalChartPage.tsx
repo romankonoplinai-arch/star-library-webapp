@@ -227,9 +227,9 @@ export function NatalChartPage() {
           </GlassCard>
         </motion.div>
 
-        {/* SVG Chart */}
-        <motion.div variants={staggerItem}>
-          <GlassCard className="p-3">
+        {/* SVG Chart - Full Width */}
+        <motion.div variants={staggerItem} className="-mx-4">
+          <div className="px-1">
             <NatalChartSVG
               planets={planets.map((p) => ({
                 name: p.name,
@@ -242,10 +242,10 @@ export function NatalChartPage() {
               ascendant={ascendant}
               onPlanetClick={(planet) => handlePlanetSelect(planet.name)}
             />
-            <p className="text-center text-muted-gray text-xs mt-2">
-              👆 Нажми на планету для подробного описания
-            </p>
-          </GlassCard>
+          </div>
+          <p className="text-center text-mystical-gold/70 text-xs px-4 italic">
+            ✨ Нажми на планету для подробного описания
+          </p>
         </motion.div>
 
         {/* Tab Switcher */}

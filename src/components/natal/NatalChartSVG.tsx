@@ -57,7 +57,7 @@ export function NatalChartSVG({
   }
 
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="w-full max-w-[320px] mx-auto">
+    <svg viewBox={`0 0 ${size} ${size}`} className="w-full mx-auto">
       {/* Градиент фона */}
       <defs>
         <radialGradient id="cosmicGradient">
