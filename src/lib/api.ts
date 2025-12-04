@@ -255,6 +255,19 @@ class ApiClient {
   }> {
     return this.fetch('/user')
   }
+
+  // Share friend's natal chart
+  async shareFriendChart(data: {
+    friend_name: string
+    zodiac_sign: string
+    zodiac_emoji: string
+    content: string
+  }): Promise<{ success: boolean; chart_id: string }> {
+    return this.fetch('/share/friend-chart', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
 }
 
 export const api = new ApiClient()
