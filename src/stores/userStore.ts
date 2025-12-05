@@ -10,6 +10,7 @@ interface UserState {
   birthDate: string | null
   birthPlace: string | null
   birthTime: string | null
+  zodiacSign: string | null
   defaultCharacter: string
   totalHoroscopes: number
   totalActiveDays: number
@@ -39,6 +40,7 @@ interface ApiUserData {
   birth_latitude?: number | null
   birth_longitude?: number | null
   birth_timezone?: string | null
+  zodiac_sign?: string | null
   default_character?: string
   total_horoscopes?: number
   total_active_days?: number
@@ -54,6 +56,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   birthDate: null,
   birthPlace: null,
   birthTime: null,
+  zodiacSign: null,
   defaultCharacter: 'lunara',
   totalHoroscopes: 0,
   totalActiveDays: 0,
@@ -82,6 +85,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       birthDate: data.birth_date || null,
       birthPlace: data.birth_place || null,
       birthTime: data.birth_time || null,
+      zodiacSign: data.zodiac_sign || null,
       defaultCharacter: data.default_character || 'lunara',
       totalHoroscopes: data.total_horoscopes || 0,
       totalActiveDays: data.total_active_days || 0,
