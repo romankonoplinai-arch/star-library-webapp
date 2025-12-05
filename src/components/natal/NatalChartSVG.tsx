@@ -77,22 +77,32 @@ export function NatalChartSVG({
     return angleToPos(degToAngle(longitude), r)
   }
 
-  // Создание дуги для сектора
+  // Создание дуги для сектора используя describeArc
+  const describeArc = (cx: number, cy: number, r: number, startAngle: number, endAngle: number) => {
+    const start = {
+      x: cx + r * Math.cos((startAngle * Math.PI) / 180),
+      y: cy + r * Math.sin((startAngle * Math.PI) / 180)
+    }
+    const end = {
+      x: cx + r * Math.cos((endAngle * Math.PI) / 180),
+      y: cy + r * Math.sin((endAngle * Math.PI) / 180)
+    }
+    const largeArc = Math.abs(endAngle - startAngle) > 180 ? 1 : 0
+    const sweep = endAngle > startAngle ? 1 : 0
+    return { start, end, largeArc, sweep }
+  }
+
   const createSectorPath = (startLong: number, endLong: number, innerR: number, outerR: number) => {
     const startAngle = degToAngle(startLong)
     const endAngle = degToAngle(endLong)
 
-    const p1 = angleToPos(startAngle, outerR)
-    const p2 = angleToPos(endAngle, outerR)
-    const p3 = angleToPos(endAngle, innerR)
-    const p4 = angleToPos(startAngle, innerR)
+    const outer = describeArc(center, center, outerR, startAngle, endAngle)
+    const inner = describeArc(center, center, innerR, endAngle, startAngle)
 
-    // Для секторов < 180° используем large-arc=0
-    // sweep=1 рисует дугу по часовой стрелке
-    return `M ${p1.x} ${p1.y}
-            A ${outerR} ${outerR} 0 0 1 ${p2.x} ${p2.y}
-            L ${p3.x} ${p3.y}
-            A ${innerR} ${innerR} 0 0 0 ${p4.x} ${p4.y}
+    return `M ${outer.start.x} ${outer.start.y}
+            A ${outerR} ${outerR} 0 ${outer.largeArc} ${outer.sweep} ${outer.end.x} ${outer.end.y}
+            L ${inner.start.x} ${inner.start.y}
+            A ${innerR} ${innerR} 0 ${inner.largeArc} ${inner.sweep} ${inner.end.x} ${inner.end.y}
             Z`
   }
 
