@@ -61,8 +61,9 @@ export function NatalChartSVG({
 
   // Конвертация эклиптических градусов в угол на карте
   // ASC всегда слева (180°), против часовой стрелки
+  // Используем + вместо - чтобы дома шли против часовой
   const degToAngle = (longitude: number) => {
-    return 180 - (longitude - ascendant)
+    return 180 + (longitude - ascendant)
   }
 
   const angleToPos = (angle: number, r: number) => {
