@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Star Library WebApp</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+        }
+        .section {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #7c3aed;
+        }
+        pre {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .status { padding: 8px; border-radius: 6px; margin-bottom: 10px; }
+        .status.success { background: rgba(16,185,129,0.2); border: 1px solid #10b981; }
+        .status.error { background: rgba(239,68,68,0.2); border: 1px solid #ef4444; }
+        button {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover { background: #6d28d9; }
+        .log {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 11px;
+            font-family: monospace;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug WebApp</h1>
+
+    <div class="section">
+        <h2>Telegram WebApp Status</h2>
+        <div id="status"></div>
+    </div>
+
+    <div class="section">
+        <h2>initData</h2>
+        <pre id="initData">Загрузка...</pre>
+    </div>
+
+    <div class="section">
+        <h2>User Data</h2>
+        <pre id="userData">Загрузка...</pre>
+    </div>
+
+    <div class="section">
+        <h2>API Test</h2>
+        <div id="apiStatus"></div>
+        <button onclick="testAPI()">🔄 Тест API /api/user</button>
+        <pre id="apiResponse" style="margin-top:10px; display:none;"></pre>
+    </div>
+
+    <div class="section">
+        <h2>Console Log</h2>
+        <div class="log" id="consoleLog"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://star-library-bot-production.up.railway.app';
+        const logs = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logs.push(logEntry);
+            console.log(logEntry);
+
+            const logDiv = document.getElementById('consoleLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = logEntry;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function displayStatus(success, message) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${success ? 'success' : 'error'}`;
+            statusDiv.innerHTML = success ? `✅ ${message}` : `❌ ${message}`;
+        }
+
+        function init() {
+            log('Initializing debug page...');
+
+            // Check if Telegram WebApp is available
+            if (typeof window.Telegram === 'undefined' || !window.Telegram.WebApp) {
+                log('Telegram WebApp not available!', 'error');
+                displayStatus(false, 'Telegram WebApp не доступен. Откройте через бота!');
+                document.getElementById('initData').textContent = 'N/A - не в Telegram';
+                document.getElementById('userData').textContent = 'N/A - не в Telegram';
+                return;
+            }
+
+            log('Telegram WebApp detected');
+            const tg = window.Telegram.WebApp;
+
+            // Initialize WebApp
+            tg.ready();
+            tg.expand();
+            log('WebApp ready() and expand() called');
+
+            // Display initData
+            const initData = tg.initData || '';
+            const initDataLength = initData.length;
+            log(`initData length: ${initDataLength}`);
+
+            document.getElementById('initData').textContent = initData || '(empty)';
+
+            if (!initData) {
+                log('WARNING: initData is empty!', 'error');
+                displayStatus(false, 'initData пустой! Откройте через Inline кнопку бота.');
+            } else {
+                log('initData available ✓', 'success');
+                displayStatus(true, `initData получен (${initDataLength} символов)`);
+            }
+
+            // Display user data
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
+                log(`User detected: ${user.id} - ${user.first_name}`);
+                document.getElementById('userData').textContent = JSON.stringify(user, null, 2);
+            } else {
+                log('WARNING: User data not available', 'error');
+                document.getElementById('userData').textContent = 'Нет данных пользователя';
+            }
+
+            // Log platform
+            log(`Platform: ${tg.platform || 'unknown'}`);
+            log(`Version: ${tg.version || 'unknown'}`);
+        }
+
+        async function testAPI() {
+            log('Testing API...');
+            const apiStatusDiv = document.getElementById('apiStatus');
+            const apiResponseDiv = document.getElementById('apiResponse');
+
+            apiStatusDiv.innerHTML = '<div class="status">⏳ Отправка запроса...</div>';
+            apiResponseDiv.style.display = 'none';
+
+            const tg = window.Telegram.WebApp;
+            const initData = tg.initData || '';
+
+            if (!initData) {
+                log('Cannot test API: initData is empty', 'error');
+                apiStatusDiv.innerHTML = '<div class="status error">❌ initData пустой! Нельзя вызвать API.</div>';
+                return;
+            }
+
+            try {
+                log(`Calling API: ${API_URL}/api/user`);
+                log(`Authorization header: tma ${initData.substring(0, 50)}...`);
+
+                const response = await fetch(`${API_URL}/api/user`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `tma ${initData}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                log(`API Response status: ${response.status}`);
+
+                const data = await response.json();
+                log(`API Response data: ${JSON.stringify(data).substring(0, 100)}...`);
+
+                apiResponseDiv.textContent = JSON.stringify(data, null, 2);
+                apiResponseDiv.style.display = 'block';
+
+                if (response.ok && data.success) {
+                    const tier = data.user.subscription_tier;
+                    log(`✓ API SUCCESS! Subscription tier: ${tier}`, 'success');
+                    apiStatusDiv.innerHTML = `<div class="status success">✅ API работает! Subscription: <strong>${tier}</strong></div>`;
+                } else {
+                    log(`API returned error: ${data.error || 'Unknown error'}`, 'error');
+                    apiStatusDiv.innerHTML = `<div class="status error">❌ Ошибка: ${data.error || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                log(`API call failed: ${error.message}`, 'error');
+                apiStatusDiv.innerHTML = `<div class="status error">❌ Ошибка запроса: ${error.message}</div>`;
+                apiResponseDiv.textContent = error.toString();
+                apiResponseDiv.style.display = 'block';
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
