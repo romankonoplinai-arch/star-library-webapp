@@ -182,54 +182,77 @@ export function NatalChartSVG({
       {/* Центральный круг */}
       <circle cx={center} cy={center} r={houseInnerR} fill="#FFF8E7" stroke="#C9A227" strokeWidth="1" />
 
-      {/* Солнце и Луна в центре */}
+      {/* Солнце и Луна в центре - как на референсе */}
       <g>
-        {/* Лучи солнца */}
-        {Array.from({ length: 24 }).map((_, i) => {
-          const angle = (i * 15 * Math.PI) / 180
+        {/* Лучи солнца - треугольные */}
+        {Array.from({ length: 16 }).map((_, i) => {
+          const angle = (i * 22.5 * Math.PI) / 180
+          const nextAngle = ((i * 22.5 + 11.25) * Math.PI) / 180
+          const prevAngle = ((i * 22.5 - 11.25) * Math.PI) / 180
           const isLong = i % 2 === 0
-          const innerR = isLong ? 25 : 30
-          const outerR = isLong ? 50 : 42
+          const tipR = isLong ? 52 : 45
+          const baseR = 28
           return (
-            <line
+            <path
               key={`ray-${i}`}
-              x1={center + innerR * Math.cos(angle)}
-              y1={center + innerR * Math.sin(angle)}
-              x2={center + outerR * Math.cos(angle)}
-              y2={center + outerR * Math.sin(angle)}
+              d={`M ${center + baseR * Math.cos(prevAngle)} ${center + baseR * Math.sin(prevAngle)}
+                  L ${center + tipR * Math.cos(angle)} ${center + tipR * Math.sin(angle)}
+                  L ${center + baseR * Math.cos(nextAngle)} ${center + baseR * Math.sin(nextAngle)}`}
+              fill="#C9A227"
               stroke="#C9A227"
-              strokeWidth={isLong ? 2 : 1}
+              strokeWidth="0.5"
             />
           )
         })}
 
-        {/* Основной круг солнца */}
-        <circle cx={center} cy={center} r={25} fill="#FFF8E7" stroke="#C9A227" strokeWidth="1.5" />
+        {/* Круг солнца */}
+        <circle cx={center} cy={center} r={28} fill="#FFF8E7" stroke="#C9A227" strokeWidth="1" />
 
-        {/* Луна (полумесяц) слева */}
+        {/* Луна - полумесяц слева, накладывается на солнце */}
         <path
-          d={`M ${center - 8} ${center - 15}
-              A 15 15 0 1 1 ${center - 8} ${center + 15}
-              A 12 12 0 1 0 ${center - 8} ${center - 15}`}
+          d={`M ${center - 5} ${center - 25}
+              A 25 25 0 0 0 ${center - 5} ${center + 25}
+              A 20 20 0 0 1 ${center - 5} ${center - 25}`}
           fill="#C9A227"
-          opacity="0.8"
         />
 
-        {/* Лицо солнца - глаза */}
-        <circle cx={center + 3} cy={center - 5} r={2} fill="#C9A227" />
-        <circle cx={center + 12} cy={center - 5} r={2} fill="#C9A227" />
+        {/* Глаз луны */}
+        <ellipse cx={center - 15} cy={center - 5} rx={2} ry={2.5} fill="#FFF8E7" />
+        <circle cx={center - 15} cy={center - 5} r={1} fill="#C9A227" />
 
-        {/* Лицо солнца - нос */}
+        {/* Нос луны */}
         <path
-          d={`M ${center + 7} ${center - 2} L ${center + 5} ${center + 3} L ${center + 9} ${center + 3}`}
+          d={`M ${center - 12} ${center} Q ${center - 14} ${center + 4} ${center - 10} ${center + 5}`}
+          fill="none"
+          stroke="#FFF8E7"
+          strokeWidth="1"
+        />
+
+        {/* Губы луны */}
+        <path
+          d={`M ${center - 16} ${center + 10} Q ${center - 12} ${center + 13} ${center - 8} ${center + 10}`}
+          fill="none"
+          stroke="#FFF8E7"
+          strokeWidth="1"
+        />
+
+        {/* Глаза солнца */}
+        <ellipse cx={center + 8} cy={center - 6} rx={2.5} ry={3} fill="none" stroke="#C9A227" strokeWidth="1" />
+        <circle cx={center + 8} cy={center - 5} r={1} fill="#C9A227" />
+        <ellipse cx={center + 18} cy={center - 6} rx={2.5} ry={3} fill="none" stroke="#C9A227" strokeWidth="1" />
+        <circle cx={center + 18} cy={center - 5} r={1} fill="#C9A227" />
+
+        {/* Нос солнца */}
+        <path
+          d={`M ${center + 13} ${center - 2} L ${center + 11} ${center + 5} L ${center + 15} ${center + 5}`}
           fill="none"
           stroke="#C9A227"
           strokeWidth="1"
         />
 
-        {/* Лицо солнца - улыбка */}
+        {/* Рот солнца */}
         <path
-          d={`M ${center + 2} ${center + 7} Q ${center + 8} ${center + 12} ${center + 14} ${center + 7}`}
+          d={`M ${center + 6} ${center + 10} Q ${center + 13} ${center + 16} ${center + 20} ${center + 10}`}
           fill="none"
           stroke="#C9A227"
           strokeWidth="1"
