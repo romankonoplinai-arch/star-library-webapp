@@ -2,10 +2,11 @@ export function useShare() {
   const share = (text: string, url?: string) => {
     const webApp = (window as any).Telegram?.WebApp
 
-    // Build share URL for Telegram
-    const shareUrl = url
-      ? `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`
-      : `https://t.me/share/url?text=${encodeURIComponent(text)}`
+    // Default bot link if no URL provided
+    const shareLink = url || 'https://t.me/Star_library_robot'
+
+    // Build share URL for Telegram (url parameter is required for proper sharing)
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareLink)}&text=${encodeURIComponent(text)}`
 
     if (!webApp) {
       // Browser fallback
