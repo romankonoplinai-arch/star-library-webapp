@@ -16,45 +16,29 @@ interface NatalChartSVGProps {
   onPlanetClick?: (planet: Planet) => void
 }
 
-const ZODIAC_SIGNS = [
-  { symbol: '♈', color: '#E74C3C' },  // Aries - red
-  { symbol: '♉', color: '#27AE60' },  // Taurus - green
-  { symbol: '♊', color: '#F1C40F' },  // Gemini - yellow
-  { symbol: '♋', color: '#3498DB' },  // Cancer - blue
-  { symbol: '♌', color: '#E67E22' },  // Leo - orange
-  { symbol: '♍', color: '#8E44AD' },  // Virgo - purple
-  { symbol: '♎', color: '#E91E63' },  // Libra - pink
-  { symbol: '♏', color: '#C0392B' },  // Scorpio - dark red
-  { symbol: '♐', color: '#9B59B6' },  // Sagittarius - violet
-  { symbol: '♑', color: '#34495E' },  // Capricorn - dark gray
-  { symbol: '♒', color: '#00BCD4' },  // Aquarius - cyan
-  { symbol: '♓', color: '#1ABC9C' },  // Pisces - teal
-]
+// Цвета по стихиям (как на классических картах)
+const ELEMENT_COLORS: Record<string, string> = {
+  fire: '#FFB3B3',    // Огонь - розовый
+  earth: '#FFFFB3',   // Земля - жёлтый
+  air: '#B3D9FF',     // Воздух - голубой
+  water: '#B3FFB3',   // Вода - зелёный
+}
+
+const SIGN_ELEMENTS = ['fire', 'earth', 'air', 'water', 'fire', 'earth', 'air', 'water', 'fire', 'earth', 'air', 'water']
+
+const ZODIAC_SYMBOLS = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓']
 
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#FFD700',
-  Moon: '#E8E8E8',
-  Mercury: '#87CEEB',
+  Moon: '#C0C0C0',
+  Mercury: '#FFA500',
   Venus: '#FF69B4',
   Mars: '#FF4500',
-  Jupiter: '#FFA500',
-  Saturn: '#DEB887',
-  Uranus: '#00CED1',
-  Neptune: '#6495ED',
-  Pluto: '#9370DB',
-}
-
-const PLANET_SIZES: Record<string, number> = {
-  Sun: 16,
-  Moon: 14,
-  Jupiter: 14,
-  Saturn: 13,
-  Mars: 12,
-  Venus: 12,
-  Mercury: 11,
-  Uranus: 11,
-  Neptune: 11,
-  Pluto: 10,
+  Jupiter: '#DAA520',
+  Saturn: '#4682B4',
+  Uranus: '#40E0D0',
+  Neptune: '#4169E1',
+  Pluto: '#8B0000',
 }
 
 export function NatalChartSVG({
@@ -68,152 +52,194 @@ export function NatalChartSVG({
   const size = 360
   const center = size / 2
   const outerRadius = size / 2 - 5
-  const zodiacOuterRadius = outerRadius
-  const zodiacInnerRadius = outerRadius - 28
-  const houseRadius = zodiacInnerRadius - 5
-  const planetRadius = houseRadius - 35
-  const innerCircleRadius = planetRadius - 25
+  const zodiacOuterR = outerRadius
+  const zodiacInnerR = outerRadius - 32
+  const houseOuterR = zodiacInnerR
+  const houseInnerR = zodiacInnerR - 45
+  const planetR = (houseOuterR + houseInnerR) / 2
+  const aspectR = houseInnerR - 10
 
-  // Convert degrees to coordinates (ASC at left = 180°)
-  const degToCoord = (deg: number, radius: number) => {
-    const adjustedDeg = 180 - deg + ascendant
-    const rad = (adjustedDeg * Math.PI) / 180
+  // Конвертация эклиптических градусов в угол на карте
+  // ASC всегда слева (180°), против часовой стрелки
+  const degToAngle = (longitude: number) => {
+    return 180 - (longitude - ascendant)
+  }
+
+  const angleToPos = (angle: number, r: number) => {
+    const rad = (angle * Math.PI) / 180
     return {
-      x: center + radius * Math.cos(rad),
-      y: center - radius * Math.sin(rad),
+      x: center + r * Math.cos(rad),
+      y: center - r * Math.sin(rad),
     }
   }
 
-  // Create arc path for zodiac segment
-  const createArcPath = (startDeg: number, endDeg: number, innerR: number, outerR: number) => {
-    const start1 = degToCoord(startDeg, outerR)
-    const end1 = degToCoord(endDeg, outerR)
-    const start2 = degToCoord(endDeg, innerR)
-    const end2 = degToCoord(startDeg, innerR)
+  const degToPos = (longitude: number, r: number) => {
+    return angleToPos(degToAngle(longitude), r)
+  }
 
-    const largeArc = Math.abs(endDeg - startDeg) > 180 ? 1 : 0
+  // Создание дуги для сектора
+  const createSectorPath = (startLong: number, endLong: number, innerR: number, outerR: number) => {
+    const startAngle = degToAngle(startLong)
+    const endAngle = degToAngle(endLong)
 
-    return `M ${start1.x} ${start1.y}
-            A ${outerR} ${outerR} 0 ${largeArc} 1 ${end1.x} ${end1.y}
-            L ${start2.x} ${start2.y}
-            A ${innerR} ${innerR} 0 ${largeArc} 0 ${end2.x} ${end2.y}
+    const p1 = angleToPos(startAngle, outerR)
+    const p2 = angleToPos(endAngle, outerR)
+    const p3 = angleToPos(endAngle, innerR)
+    const p4 = angleToPos(startAngle, innerR)
+
+    const sweep = endAngle < startAngle ? 0 : 1
+
+    return `M ${p1.x} ${p1.y}
+            A ${outerR} ${outerR} 0 0 ${sweep} ${p2.x} ${p2.y}
+            L ${p3.x} ${p3.y}
+            A ${innerR} ${innerR} 0 0 ${1-sweep} ${p4.x} ${p4.y}
             Z`
   }
 
-  return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="w-full mx-auto">
-      {/* Background circle */}
-      <circle
-        cx={center}
-        cy={center}
-        r={outerRadius}
-        fill="#0D0B14"
-      />
+  // Аспекты между планетами
+  const aspectLines: React.ReactNode[] = []
+  const ASPECT_COLORS: Record<string, string> = {
+    conjunction: '#FFD700',
+    opposition: '#FF0000',
+    trine: '#00AA00',
+    square: '#FF0000',
+    sextile: '#00AA00',
+  }
+  const ASPECT_ANGLES: Record<string, number> = {
+    conjunction: 0,
+    opposition: 180,
+    trine: 120,
+    square: 90,
+    sextile: 60,
+  }
 
-      {/* Zodiac colored segments */}
-      {ZODIAC_SIGNS.map((sign, i) => {
-        const startDeg = i * 30
-        const endDeg = (i + 1) * 30
-        const midDeg = startDeg + 15
-        const symbolPos = degToCoord(midDeg, (zodiacOuterRadius + zodiacInnerRadius) / 2)
+  for (let i = 0; i < planets.length; i++) {
+    for (let j = i + 1; j < planets.length; j++) {
+      let diff = Math.abs(planets[i].degree - planets[j].degree)
+      if (diff > 180) diff = 360 - diff
+
+      for (const [aspect, angle] of Object.entries(ASPECT_ANGLES)) {
+        if (Math.abs(diff - angle) <= 8) {
+          const pos1 = degToPos(planets[i].degree, aspectR)
+          const pos2 = degToPos(planets[j].degree, aspectR)
+          aspectLines.push(
+            <line
+              key={`${planets[i].name}-${planets[j].name}`}
+              x1={pos1.x} y1={pos1.y}
+              x2={pos2.x} y2={pos2.y}
+              stroke={ASPECT_COLORS[aspect]}
+              strokeWidth="1"
+              opacity="0.6"
+            />
+          )
+          break
+        }
+      }
+    }
+  }
+
+  return (
+    <svg viewBox={`0 0 ${size} ${size}`} className="w-full mx-auto drop-shadow-xl">
+      {/* Фон */}
+      <circle cx={center} cy={center} r={outerRadius} fill="#fafafa" />
+
+      {/* Знаки зодиака */}
+      {ZODIAC_SYMBOLS.map((symbol, i) => {
+        const startLong = i * 30
+        const endLong = (i + 1) * 30
+        const element = SIGN_ELEMENTS[i]
+        const color = ELEMENT_COLORS[element]
+
+        const midAngle = degToAngle(startLong + 15)
+        const symbolPos = angleToPos(midAngle, (zodiacOuterR + zodiacInnerR) / 2)
 
         return (
           <g key={i}>
-            {/* Colored segment */}
             <path
-              d={createArcPath(startDeg, endDeg, zodiacInnerRadius, zodiacOuterRadius)}
-              fill={sign.color}
-              opacity={0.85}
-              stroke="#1a1a2e"
+              d={createSectorPath(startLong, endLong, zodiacInnerR, zodiacOuterR)}
+              fill={color}
+              stroke="#666"
               strokeWidth="1"
             />
-            {/* Zodiac symbol */}
             <text
               x={symbolPos.x}
               y={symbolPos.y}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="white"
-              fontSize="13"
+              fill="#333"
+              fontSize="16"
               fontWeight="bold"
-              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
             >
-              {sign.symbol}
+              {symbol}
             </text>
           </g>
         )
       })}
 
-      {/* Inner dark circle for houses */}
-      <circle
-        cx={center}
-        cy={center}
-        r={zodiacInnerRadius}
-        fill="#0D0B14"
-      />
-
-      {/* House lines (from center to zodiac ring) */}
-      {houses.map((cusp, i) => {
-        const outer = degToCoord(cusp, zodiacInnerRadius)
-        const inner = degToCoord(cusp, innerCircleRadius)
-        const isAngular = i === 0 || i === 3 || i === 6 || i === 9
-
-        return (
-          <line
-            key={`house-${i}`}
-            x1={inner.x}
-            y1={inner.y}
-            x2={outer.x}
-            y2={outer.y}
-            stroke={isAngular ? 'rgba(180,162,112,0.6)' : 'rgba(255,255,255,0.2)'}
-            strokeWidth={isAngular ? 1.5 : 1}
-          />
-        )
-      })}
-
-      {/* House numbers - Roman numerals */}
+      {/* Секторы домов */}
       {houses.map((cusp, i) => {
         const nextCusp = houses[(i + 1) % 12]
-        // Calculate middle of the house sector
-        let diff = nextCusp - cusp
-        if (diff < 0) diff += 360 // Handle wrap-around
-        const midDeg = cusp + diff / 2
-        // Номер дома = i + 1, но массив romanNumerals индексируется с 0
-        const pos = degToCoord(midDeg, innerCircleRadius + 25)
-        const isAngular = i === 0 || i === 3 || i === 6 || i === 9
-        const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII']
+        const isEven = (i + 1) % 2 === 0
+
+        // Середина дома для номера
+        let midLong = (cusp + nextCusp) / 2
+        if (nextCusp < cusp) {
+          midLong = (cusp + nextCusp + 360) / 2
+          if (midLong >= 360) midLong -= 360
+        }
+        const numPos = degToPos(midLong, (houseOuterR + houseInnerR) / 2)
 
         return (
-          <text
-            key={`house-num-${i}`}
-            x={pos.x}
-            y={pos.y}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fill={isAngular ? 'rgba(180,162,112,0.8)' : 'rgba(180,162,112,0.5)'}
-            fontSize={isAngular ? '11' : '9'}
-            fontWeight={isAngular ? 'bold' : 'normal'}
-          >
-            {romanNumerals[i]}
-          </text>
+          <g key={`house-${i}`}>
+            <path
+              d={createSectorPath(cusp, nextCusp, houseInnerR, houseOuterR)}
+              fill={isEven ? '#f0f0f0' : '#e0e0e0'}
+              stroke="#999"
+              strokeWidth="0.5"
+            />
+            <text
+              x={numPos.x}
+              y={numPos.y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill="#666"
+              fontSize="11"
+              fontWeight="bold"
+            >
+              {i + 1}
+            </text>
+          </g>
         )
       })}
 
-      {/* Inner circle */}
-      <circle
-        cx={center}
-        cy={center}
-        r={innerCircleRadius}
-        fill="none"
-        stroke="rgba(180,162,112,0.3)"
-        strokeWidth="1"
-      />
+      {/* Центральный круг */}
+      <circle cx={center} cy={center} r={houseInnerR} fill="white" stroke="#ccc" strokeWidth="1" />
 
-      {/* Planets */}
+      {/* Аспекты */}
+      {aspectLines}
+
+      {/* Оси ASC-DSC и MC-IC */}
+      {(() => {
+        const ascPos = degToPos(ascendant, zodiacOuterR)
+        const dscPos = degToPos(ascendant + 180, houseInnerR)
+        const mc = houses[9] || (ascendant + 270) % 360
+        const mcPos = degToPos(mc, zodiacOuterR)
+        const icPos = degToPos((mc + 180) % 360, houseInnerR)
+
+        return (
+          <g>
+            <line x1={ascPos.x} y1={ascPos.y} x2={dscPos.x} y2={dscPos.y} stroke="#333" strokeWidth="1.5" />
+            <line x1={mcPos.x} y1={mcPos.y} x2={icPos.x} y2={icPos.y} stroke="#333" strokeWidth="1.5" />
+            <text x={ascPos.x - 18} y={ascPos.y} fontSize="10" fill="#333" fontWeight="bold">Asc</text>
+          </g>
+        )
+      })()}
+
+      {/* Планеты */}
       {planets.map((planet) => {
-        const { x, y } = degToCoord(planet.degree, planetRadius)
+        const pos = degToPos(planet.degree, planetR)
         const isHovered = hoveredPlanet === planet.name
-        const planetSize = PLANET_SIZES[planet.name] || 12
+        const color = PLANET_COLORS[planet.name] || '#888'
 
         return (
           <motion.g
@@ -225,42 +251,25 @@ export function NatalChartSVG({
             animate={{ scale: isHovered ? 1.2 : 1 }}
             transition={{ type: 'spring', stiffness: 300 }}
           >
-            {/* Planet glow */}
-            <circle
-              cx={x}
-              cy={y}
-              r={planetSize + 4}
-              fill={PLANET_COLORS[planet.name] || '#fff'}
-              opacity={isHovered ? 0.3 : 0.15}
-            />
-            {/* Planet circle */}
-            <circle
-              cx={x}
-              cy={y}
-              r={planetSize}
-              fill={PLANET_COLORS[planet.name] || '#fff'}
-              stroke="#0D0B14"
-              strokeWidth="1.5"
-            />
+            <circle cx={pos.x} cy={pos.y} r={12} fill="white" stroke={color} strokeWidth="2" />
+            <text
+              x={pos.x}
+              y={pos.y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill={color}
+              fontSize="12"
+              fontWeight="bold"
+            >
+              {planet.symbol}
+            </text>
           </motion.g>
         )
       })}
-
-      {/* ASC marker - рисуется на градусе ascendant (слева на карте) */}
-      <text
-        x={degToCoord(ascendant, zodiacInnerRadius + 15).x - 20}
-        y={degToCoord(ascendant, zodiacInnerRadius + 15).y}
-        fill="#FFD700"
-        fontSize="11"
-        fontWeight="bold"
-      >
-        ASC
-      </text>
     </svg>
   )
 }
 
-// Tooltip for planet
 export function PlanetTooltip({ planet }: { planet: Planet }) {
   return (
     <div className="bg-cosmic-black/95 border border-mystical-gold/30 rounded-lg p-3 text-sm">
