@@ -19,6 +19,7 @@ interface House {
 interface ChartWheelProps {
   planets: Planet[]
   houses: House[]
+  ascendant?: number
   size?: number
   onPlanetClick?: (planet: Planet) => void
 }
@@ -42,14 +43,24 @@ const PLANET_DESCRIPTIONS: Record<string, string> = {
   Pluto: 'Трансформация, власть, возрождение',
 }
 
-const SIGN_COLORS: Record<string, [string, string]> = {
-  aries: ['#FF6B6B', '#FF8E53'], leo: ['#FF6B6B', '#FF8E53'], sagittarius: ['#FF6B6B', '#FF8E53'],
-  taurus: ['#51CF66', '#94D82D'], virgo: ['#51CF66', '#94D82D'], capricorn: ['#51CF66', '#94D82D'],
-  gemini: ['#4DABF7', '#74C0FC'], libra: ['#4DABF7', '#74C0FC'], aquarius: ['#4DABF7', '#74C0FC'],
-  cancer: ['#845EF7', '#5C7CFA'], scorpio: ['#845EF7', '#5C7CFA'], pisces: ['#845EF7', '#5C7CFA'],
+// Цвета по стихиям (как на референсе)
+const ELEMENT_COLORS: Record<string, string> = {
+  fire: '#FFB3B3',    // Огонь - розовый/красный
+  earth: '#FFFFB3',   // Земля - жёлтый
+  air: '#B3D9FF',     // Воздух - голубой
+  water: '#B3FFB3',   // Вода - зелёный
 }
 
-const ZODIAC_SIGNS = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
+const SIGN_ELEMENTS: Record<string, string> = {
+  aries: 'fire', leo: 'fire', sagittarius: 'fire',
+  taurus: 'earth', virgo: 'earth', capricorn: 'earth',
+  gemini: 'air', libra: 'air', aquarius: 'air',
+  cancer: 'water', scorpio: 'water', pisces: 'water',
+}
+
+const ZODIAC_SIGNS = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo',
+                      'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
+
 const ZODIAC_SYMBOLS: Record<string, string> = {
   aries: '♈', taurus: '♉', gemini: '♊', cancer: '♋', leo: '♌', virgo: '♍',
   libra: '♎', scorpio: '♏', sagittarius: '♐', capricorn: '♑', aquarius: '♒', pisces: '♓',
@@ -62,7 +73,7 @@ const PLANET_SYMBOLS: Record<string, string> = {
 
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#FFD700', Moon: '#C0C0C0', Mercury: '#FFA500', Venus: '#FF69B4', Mars: '#FF4500',
-  Jupiter: '#8B4513', Saturn: '#4169E1', Uranus: '#00CED1', Neptune: '#1E90FF', Pluto: '#8B0000',
+  Jupiter: '#DAA520', Saturn: '#4682B4', Uranus: '#40E0D0', Neptune: '#4169E1', Pluto: '#8B0000',
 }
 
 export function ChartWheel({ planets, houses, size = 400, onPlanetClick }: ChartWheelProps) {
@@ -70,175 +81,299 @@ export function ChartWheel({ planets, houses, size = 400, onPlanetClick }: Chart
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
 
   const center = size / 2
-  const outerRadius = size / 2 - 10
-  const zodiacRadius = outerRadius - 40
-  const housesRadius = zodiacRadius - 40
-  const planetsRadius = housesRadius - 50
+  const outerRadius = size / 2 - 5
+  const zodiacOuterR = outerRadius
+  const zodiacInnerR = outerRadius - 35
+  const houseOuterR = zodiacInnerR
+  const houseInnerR = zodiacInnerR - 50
+  const planetR = (houseOuterR + houseInnerR) / 2
+  const aspectR = houseInnerR - 10
 
-  // Конвертация астрологических градусов в SVG координаты
-  // 0° = Овен справа, против часовой стрелки
-  const degToPos = (deg: number, r: number) => {
-    // Минус для против часовой стрелки в SVG
-    const rad = (-deg * Math.PI) / 180
+  // Получаем ASC из первого дома
+  const ascendant = houses.find(h => h.number === 1)?.cusp_longitude || 0
+
+  // Конвертация эклиптических градусов в угол на карте
+  // ASC всегда слева (180° на экране), карта вращается относительно ASC
+  const degToAngle = (longitude: number) => {
+    // ASC слева = 180°, против часовой стрелки
+    return 180 - (longitude - ascendant)
+  }
+
+  const angleToPos = (angle: number, r: number) => {
+    const rad = (angle * Math.PI) / 180
     return {
       x: center + r * Math.cos(rad),
-      y: center + r * Math.sin(rad),
+      y: center - r * Math.sin(rad), // минус потому что SVG Y вниз
     }
   }
 
-  // Градиенты
-  const zodiacGradients = useMemo(() => (
-    Object.entries(SIGN_COLORS).map(([sign, [c1, c2]]) => (
-      <linearGradient key={sign} id={`grad-${sign}`} x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor={c1} stopOpacity={0.3} />
-        <stop offset="100%" stopColor={c2} stopOpacity={0.3} />
-      </linearGradient>
-    ))
-  ), [])
+  const degToPos = (longitude: number, r: number) => {
+    return angleToPos(degToAngle(longitude), r)
+  }
 
-  // 12 секторов зодиака
+  // Рисуем секторы знаков зодиака
   const zodiacSectors = useMemo(() => {
     return ZODIAC_SIGNS.map((sign, i) => {
-      const start = i * 30
-      const end = (i + 1) * 30
+      const startLong = i * 30
+      const endLong = (i + 1) * 30
 
-      // 4 точки сектора (против часовой = минус угол)
-      const p1 = degToPos(start, outerRadius)
-      const p2 = degToPos(end, outerRadius)
-      const p3 = degToPos(end, zodiacRadius)
-      const p4 = degToPos(start, zodiacRadius)
+      const startAngle = degToAngle(startLong)
+      const endAngle = degToAngle(endLong)
 
-      // SVG path: дуга против часовой = sweep-flag 0
+      const p1 = angleToPos(startAngle, zodiacOuterR)
+      const p2 = angleToPos(endAngle, zodiacOuterR)
+      const p3 = angleToPos(endAngle, zodiacInnerR)
+      const p4 = angleToPos(startAngle, zodiacInnerR)
+
+      // Определяем sweep direction (против часовой = 0 когда end < start)
+      const sweep = endAngle < startAngle ? 0 : 1
+
       const path = `
         M ${p1.x} ${p1.y}
-        A ${outerRadius} ${outerRadius} 0 0 0 ${p2.x} ${p2.y}
+        A ${zodiacOuterR} ${zodiacOuterR} 0 0 ${sweep} ${p2.x} ${p2.y}
         L ${p3.x} ${p3.y}
-        A ${zodiacRadius} ${zodiacRadius} 0 0 1 ${p4.x} ${p4.y}
+        A ${zodiacInnerR} ${zodiacInnerR} 0 0 ${1-sweep} ${p4.x} ${p4.y}
         Z
       `
 
-      // Символ в середине сектора
-      const mid = degToPos(start + 15, (outerRadius + zodiacRadius) / 2)
+      const midAngle = (startAngle + endAngle) / 2
+      const symbolPos = angleToPos(midAngle, (zodiacOuterR + zodiacInnerR) / 2)
+      const element = SIGN_ELEMENTS[sign]
+      const color = ELEMENT_COLORS[element]
 
       return (
         <g key={sign}>
-          <path d={path} fill={`url(#grad-${sign})`} stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-          <text x={mid.x} y={mid.y} textAnchor="middle" dominantBaseline="middle" fontSize="24" fill="white" opacity={0.6}>
+          <path d={path} fill={color} stroke="#666" strokeWidth="1" />
+          <text
+            x={symbolPos.x}
+            y={symbolPos.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="18"
+            fill="#333"
+            fontWeight="bold"
+          >
             {ZODIAC_SYMBOLS[sign]}
           </text>
         </g>
       )
     })
-  }, [center, outerRadius, zodiacRadius])
+  }, [ascendant, center, zodiacOuterR, zodiacInnerR])
 
-  // Линии домов
-  const houseLines = useMemo(() => {
-    return houses.map((house) => {
-      const p1 = degToPos(house.cusp_longitude, housesRadius + 20)
-      const p2 = degToPos(house.cusp_longitude, center * 0.2)
-      return (
-        <line key={house.number} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
-          stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeDasharray="4 4" />
-      )
-    })
-  }, [houses, housesRadius, center])
-
-  // Номера домов
-  const houseNumbers = useMemo(() => {
+  // Рисуем секторы домов
+  const houseSectors = useMemo(() => {
     const sorted = [...houses].sort((a, b) => a.number - b.number)
-    return sorted.map((house) => {
-      const nextNum = house.number === 12 ? 1 : house.number + 1
-      const next = sorted.find(h => h.number === nextNum)
 
-      let mid = house.cusp_longitude
-      if (next) {
-        let nextCusp = next.cusp_longitude
-        if (nextCusp < house.cusp_longitude) nextCusp += 360
-        mid = (house.cusp_longitude + nextCusp) / 2
-        if (mid >= 360) mid -= 360
+    return sorted.map((house, i) => {
+      const nextHouse = sorted[(i + 1) % 12]
+      const startAngle = degToAngle(house.cusp_longitude)
+      const endAngle = degToAngle(nextHouse.cusp_longitude)
+
+      const p1 = angleToPos(startAngle, houseOuterR)
+      const p2 = angleToPos(endAngle, houseOuterR)
+      const p3 = angleToPos(endAngle, houseInnerR)
+      const p4 = angleToPos(startAngle, houseInnerR)
+
+      const sweep = endAngle < startAngle ? 0 : 1
+      const largeArc = Math.abs(endAngle - startAngle) > 180 ? 1 : 0
+
+      const path = `
+        M ${p1.x} ${p1.y}
+        A ${houseOuterR} ${houseOuterR} 0 ${largeArc} ${sweep} ${p2.x} ${p2.y}
+        L ${p3.x} ${p3.y}
+        A ${houseInnerR} ${houseInnerR} 0 ${largeArc} ${1-sweep} ${p4.x} ${p4.y}
+        Z
+      `
+
+      // Номер дома в середине сектора
+      let midLong = (house.cusp_longitude + nextHouse.cusp_longitude) / 2
+      if (nextHouse.cusp_longitude < house.cusp_longitude) {
+        midLong = (house.cusp_longitude + nextHouse.cusp_longitude + 360) / 2
+        if (midLong >= 360) midLong -= 360
       }
+      const numPos = degToPos(midLong, (houseOuterR + houseInnerR) / 2)
 
-      const pos = degToPos(mid, housesRadius - 15)
+      const isEven = house.number % 2 === 0
+
       return (
-        <text key={`h-${house.number}`} x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="middle"
-          fontSize="14" fontWeight="bold" fill="rgba(255,255,255,0.4)">
-          {house.number}
-        </text>
+        <g key={house.number}>
+          <path d={path} fill={isEven ? '#f5f5f5' : '#e8e8e8'} stroke="#999" strokeWidth="1" />
+          <text
+            x={numPos.x}
+            y={numPos.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="12"
+            fill="#666"
+            fontWeight="bold"
+          >
+            {house.number}
+          </text>
+        </g>
       )
     })
-  }, [houses, housesRadius])
+  }, [houses, ascendant, center, houseOuterR, houseInnerR])
+
+  // Линии осей ASC-DSC и MC-IC
+  const axisLines = useMemo(() => {
+    const ascPos1 = degToPos(ascendant, zodiacOuterR)
+    const ascPos2 = degToPos(ascendant, houseInnerR)
+    const dscPos1 = degToPos(ascendant + 180, zodiacOuterR)
+    const dscPos2 = degToPos(ascendant + 180, houseInnerR)
+
+    // MC обычно дом 10
+    const mc = houses.find(h => h.number === 10)?.cusp_longitude || (ascendant + 270) % 360
+    const mcPos1 = degToPos(mc, zodiacOuterR)
+    const mcPos2 = degToPos(mc, houseInnerR)
+    const icPos1 = degToPos((mc + 180) % 360, zodiacOuterR)
+    const icPos2 = degToPos((mc + 180) % 360, houseInnerR)
+
+    return (
+      <g>
+        {/* ASC-DSC линия */}
+        <line x1={ascPos1.x} y1={ascPos1.y} x2={dscPos2.x} y2={dscPos2.y} stroke="#333" strokeWidth="2" />
+        {/* MC-IC линия */}
+        <line x1={mcPos1.x} y1={mcPos1.y} x2={icPos2.x} y2={icPos2.y} stroke="#333" strokeWidth="2" />
+
+        {/* Подписи */}
+        <text x={ascPos1.x - 15} y={ascPos1.y} fontSize="10" fill="#333" fontWeight="bold">Asc</text>
+        <text x={dscPos1.x + 5} y={dscPos1.y} fontSize="10" fill="#333" fontWeight="bold">Ds</text>
+        <text x={mcPos1.x} y={mcPos1.y - 8} fontSize="10" fill="#333" fontWeight="bold" textAnchor="middle">MC</text>
+        <text x={icPos1.x} y={icPos1.y + 15} fontSize="10" fill="#333" fontWeight="bold" textAnchor="middle">IC</text>
+      </g>
+    )
+  }, [houses, ascendant, center, zodiacOuterR, houseInnerR])
+
+  // Аспекты между планетами
+  const aspectLines = useMemo(() => {
+    const aspects: React.ReactNode[] = []
+    const ASPECT_COLORS: Record<string, string> = {
+      conjunction: '#FFD700',
+      opposition: '#FF0000',
+      trine: '#00FF00',
+      square: '#FF0000',
+      sextile: '#00FF00',
+    }
+    const ASPECT_ANGLES: Record<string, number> = {
+      conjunction: 0,
+      opposition: 180,
+      trine: 120,
+      square: 90,
+      sextile: 60,
+    }
+    const ORB = 8
+
+    for (let i = 0; i < planets.length; i++) {
+      for (let j = i + 1; j < planets.length; j++) {
+        let diff = Math.abs(planets[i].longitude - planets[j].longitude)
+        if (diff > 180) diff = 360 - diff
+
+        for (const [aspect, angle] of Object.entries(ASPECT_ANGLES)) {
+          if (Math.abs(diff - angle) <= ORB) {
+            const pos1 = degToPos(planets[i].longitude, aspectR)
+            const pos2 = degToPos(planets[j].longitude, aspectR)
+            aspects.push(
+              <line
+                key={`${planets[i].name}-${planets[j].name}-${aspect}`}
+                x1={pos1.x} y1={pos1.y}
+                x2={pos2.x} y2={pos2.y}
+                stroke={ASPECT_COLORS[aspect]}
+                strokeWidth="1"
+                opacity="0.7"
+              />
+            )
+            break
+          }
+        }
+      }
+    }
+    return aspects
+  }, [planets, ascendant, center, aspectR])
 
   // Планеты
   const planetMarkers = useMemo(() => {
     return planets.map((planet, i) => {
-      const pos = degToPos(planet.longitude, planetsRadius)
+      const pos = degToPos(planet.longitude, planetR)
       const hovered = hoveredPlanet?.name === planet.name
+
       return (
-        <motion.g key={planet.name}
+        <motion.g
+          key={planet.name}
           initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: hovered ? 1.2 : 1 }}
-          transition={{ delay: i * 0.1, type: 'spring' }}
+          animate={{ opacity: 1, scale: hovered ? 1.3 : 1 }}
+          transition={{ delay: i * 0.05, type: 'spring' }}
           style={{ cursor: 'pointer' }}
-          onMouseEnter={() => { setHoveredPlanet(planet); setTooltipPos({ x: pos.x, y: pos.y - 30 }) }}
+          onMouseEnter={() => { setHoveredPlanet(planet); setTooltipPos({ x: pos.x, y: pos.y - 25 }) }}
           onMouseLeave={() => setHoveredPlanet(null)}
           onClick={() => onPlanetClick?.(planet)}
         >
-          <circle cx={pos.x} cy={pos.y} r={hovered ? 20 : 16}
-            fill={PLANET_COLORS[planet.name] || '#fff'} fillOpacity={hovered ? 0.4 : 0.2}
-            stroke={PLANET_COLORS[planet.name] || '#fff'} strokeWidth={hovered ? 3 : 2} />
-          <text x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="middle"
-            fontSize={hovered ? 20 : 18} fontWeight="bold" fill="white">
-            {PLANET_SYMBOLS[planet.name as keyof typeof PLANET_SYMBOLS]}
+          <circle cx={pos.x} cy={pos.y} r={12} fill="white" stroke={PLANET_COLORS[planet.name]} strokeWidth="2" />
+          <text
+            x={pos.x}
+            y={pos.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="14"
+            fill={PLANET_COLORS[planet.name]}
+            fontWeight="bold"
+          >
+            {PLANET_SYMBOLS[planet.name]}
           </text>
         </motion.g>
       )
     })
-  }, [planets, planetsRadius, hoveredPlanet, onPlanetClick])
+  }, [planets, ascendant, hoveredPlanet, onPlanetClick, center, planetR])
 
   return (
     <motion.div
-      initial={{ opacity: 0, rotate: -10 }}
-      animate={{ opacity: 1, rotate: 0 }}
-      transition={{ duration: 1.5, type: 'spring' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
       className="flex items-center justify-center relative"
     >
       <AnimatePresence>
         {hoveredPlanet && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
             className="absolute z-50 pointer-events-none"
             style={{ left: tooltipPos.x, top: tooltipPos.y, transform: 'translate(-50%, -100%)' }}
           >
             <div className="bg-gray-900/95 border border-purple-500/30 rounded-xl px-3 py-2 shadow-lg backdrop-blur-sm min-w-[140px]">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-lg" style={{ color: PLANET_COLORS[hoveredPlanet.name] }}>
-                  {PLANET_SYMBOLS[hoveredPlanet.name as keyof typeof PLANET_SYMBOLS]}
+                  {PLANET_SYMBOLS[hoveredPlanet.name]}
                 </span>
                 <span className="font-bold text-white text-sm">{PLANET_NAMES_RU[hoveredPlanet.name]}</span>
               </div>
-              <div className="text-xs text-gray-300 capitalize">{hoveredPlanet.sign} • Дом {hoveredPlanet.house}</div>
+              <div className="text-xs text-gray-300 capitalize">{hoveredPlanet.sign} {hoveredPlanet.degree.toFixed(0)}° • Дом {hoveredPlanet.house}</div>
               <div className="text-xs text-purple-400 mt-1">{PLANET_DESCRIPTIONS[hoveredPlanet.name]}</div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-2xl">
-        <defs>
-          {zodiacGradients}
-          <radialGradient id="centerGrad">
-            <stop offset="0%" stopColor="#1a1a2e" />
-            <stop offset="100%" stopColor="#0f0f1e" />
-          </radialGradient>
-        </defs>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-xl">
+        {/* Фон */}
+        <circle cx={center} cy={center} r={outerRadius} fill="#fafafa" />
 
-        <circle cx={center} cy={center} r={outerRadius} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+        {/* Знаки зодиака */}
         {zodiacSectors}
-        <circle cx={center} cy={center} r={zodiacRadius} fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-        {houseLines}
-        {houseNumbers}
-        <circle cx={center} cy={center} r={housesRadius} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
-        <circle cx={center} cy={center} r={center * 0.2} fill="url(#centerGrad)" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+
+        {/* Дома */}
+        {houseSectors}
+
+        {/* Центральный круг для аспектов */}
+        <circle cx={center} cy={center} r={houseInnerR} fill="white" stroke="#ccc" strokeWidth="1" />
+
+        {/* Аспекты */}
+        {aspectLines}
+
+        {/* Оси */}
+        {axisLines}
+
+        {/* Планеты */}
         {planetMarkers}
       </svg>
     </motion.div>
