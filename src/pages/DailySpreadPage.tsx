@@ -232,16 +232,10 @@ export function DailySpreadPage() {
             <button
               onClick={() => {
                 haptic.medium()
-                const positions = spread?.cards.map((c) =>
-                  `${c.position_name}: ${c.name_ru}${c.reversed ? ' ⟲' : ''}`
-                ).join('\n')
-
-                const shareText = `🌟 Мой расклад дня
-
-🎴 Карты:
-${positions}
-
-🔮 Узнай свою судьбу в @Star_library_robot`
+                // Share interpretation, not just card names
+                const shareText = interpretation
+                  ? `🌟 Расклад дня\n\n${interpretation}\n\n✨ Узнай свою судьбу в @Star_library_robot`
+                  : `🌟 Мой расклад дня\n\n✨ Узнай свою судьбу в @Star_library_robot`
 
                 share(shareText)
               }}

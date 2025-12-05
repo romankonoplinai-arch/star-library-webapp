@@ -195,16 +195,10 @@ export function CelticCrossPage() {
               <button
                 onClick={() => {
                   haptic.medium()
-                  const positions = cards?.map((c) =>
-                    `${c.positionName}: ${c.card.nameRu}${c.card.reversed ? ' ⟲' : ''}`
-                  ).join('\n')
-
-                  const shareText = `🔮 Мой Кельтский Крест
-
-🎴 Карты:
-${positions}
-
-${question ? `❓ Вопрос: ${question}\n\n` : ''}🌟 Узнай свою судьбу в @Star_library_robot`
+                  // Share interpretation, not just card names
+                  const shareText = interpretation
+                    ? `🔮 Кельтский Крест\n\n${interpretation}\n\n✨ Узнай свою судьбу в @Star_library_robot`
+                    : `🔮 Мой Кельтский Крест\n\n✨ Узнай свою судьбу в @Star_library_robot`
 
                   share(shareText)
                 }}

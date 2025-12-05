@@ -177,16 +177,10 @@ export function ThreeCardPage() {
               <button
                 onClick={() => {
                   haptic.medium()
-                  const positions = cards.map((c) =>
-                    `${c.position_name}: ${c.card.name_ru}${c.card.reversed ? ' ⟲' : ''}`
-                  ).join('\n')
-
-                  const shareText = `⏳ Прошлое-Настоящее-Будущее
-
-🎴 Карты:
-${positions}
-
-${question ? `❓ Вопрос: ${question}\n\n` : ''}🌟 Узнай свою судьбу в @Star_library_robot`
+                  // Share interpretation, not just card names
+                  const shareText = interpretation
+                    ? `⏳ Прошлое-Настоящее-Будущее\n\n${interpretation}\n\n✨ Узнай свою судьбу в @Star_library_robot`
+                    : `⏳ Мой расклад\n\n✨ Узнай свою судьбу в @Star_library_robot`
 
                   share(shareText)
                 }}
