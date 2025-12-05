@@ -61,16 +61,15 @@ export function NatalChartSVG({
 
   // Конвертация эклиптических градусов в угол на карте
   // ASC всегда слева (180°), против часовой стрелки
-  // Используем + вместо - чтобы дома шли против часовой
   const degToAngle = (longitude: number) => {
-    return 180 + (longitude - ascendant)
+    return 180 - (longitude - ascendant)
   }
 
   const angleToPos = (angle: number, r: number) => {
     const rad = (angle * Math.PI) / 180
     return {
       x: center + r * Math.cos(rad),
-      y: center - r * Math.sin(rad),
+      y: center + r * Math.sin(rad),  // + для инверсии направления
     }
   }
 
@@ -88,9 +87,8 @@ export function NatalChartSVG({
     const p3 = angleToPos(endAngle, innerR)
     const p4 = angleToPos(startAngle, innerR)
 
-    // sweep=1 для дуги по часовой, sweep=0 против часовой
-    // При + формуле endAngle > startAngle, нужен sweep=1
-    const sweep = endAngle > startAngle ? 1 : 0
+    // sweep флаг для SVG arc
+    const sweep = endAngle < startAngle ? 1 : 0
 
     return `M ${p1.x} ${p1.y}
             A ${outerR} ${outerR} 0 0 ${sweep} ${p2.x} ${p2.y}
