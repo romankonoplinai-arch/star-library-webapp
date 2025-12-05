@@ -87,13 +87,12 @@ export function NatalChartSVG({
     const p3 = angleToPos(endAngle, innerR)
     const p4 = angleToPos(startAngle, innerR)
 
-    // sweep флаг для SVG arc
-    const sweep = endAngle < startAngle ? 1 : 0
-
+    // Для секторов < 180° используем large-arc=0
+    // sweep=1 рисует дугу по часовой стрелке
     return `M ${p1.x} ${p1.y}
-            A ${outerR} ${outerR} 0 0 ${sweep} ${p2.x} ${p2.y}
+            A ${outerR} ${outerR} 0 0 1 ${p2.x} ${p2.y}
             L ${p3.x} ${p3.y}
-            A ${innerR} ${innerR} 0 0 ${1-sweep} ${p4.x} ${p4.y}
+            A ${innerR} ${innerR} 0 0 0 ${p4.x} ${p4.y}
             Z`
   }
 
