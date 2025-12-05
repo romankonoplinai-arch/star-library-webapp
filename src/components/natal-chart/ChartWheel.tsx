@@ -217,12 +217,27 @@ export function ChartWheel({ planets, houses, size = 400, onPlanetClick }: Chart
 
   // Номера домов
   const houseNumbers = useMemo(() => {
-    return houses.map((house) => {
-      // Середина дома
-      const nextHouse = houses[house.number % 12]
-      const midLongitude = house.number === 12
-        ? (house.cusp_longitude + (nextHouse?.cusp_longitude || 0) + 360) / 2 % 360
-        : (house.cusp_longitude + (nextHouse?.cusp_longitude || 0)) / 2
+    // Сортируем дома по номеру для правильного доступа
+    const sortedHouses = [...houses].sort((a, b) => a.number - b.number)
+
+    return sortedHouses.map((house) => {
+      // Следующий дом (1→2→3...12→1)
+      const nextHouseNum = house.number === 12 ? 1 : house.number + 1
+      const nextHouse = sortedHouses.find(h => h.number === nextHouseNum)
+
+      // Середина дома между текущим cusp и следующим
+      let midLongitude
+      if (nextHouse) {
+        let nextCusp = nextHouse.cusp_longitude
+        // Если следующий cusp меньше текущего, добавляем 360
+        if (nextCusp < house.cusp_longitude) {
+          nextCusp += 360
+        }
+        midLongitude = (house.cusp_longitude + nextCusp) / 2
+        if (midLongitude >= 360) midLongitude -= 360
+      } else {
+        midLongitude = house.cusp_longitude
+      }
 
       const pos = degToPos(midLongitude, housesRadius - 15)
 
