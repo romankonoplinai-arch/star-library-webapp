@@ -134,13 +134,13 @@ export function HomePage() {
           </GlassCard>
         </motion.div>
 
-        {/* Расчёт для друга - виральная механика */}
+        {/* Карта для друга - виральная механика */}
         <motion.div variants={staggerItem}>
           <GlassCard hoverable onClick={handleFriendChart} className="border-mystical-gold/30">
             <div className="flex items-center gap-4">
               <span className="text-4xl">🎁</span>
               <div className="flex-1">
-                <h3 className="font-semibold">Расчёт для друга</h3>
+                <h3 className="font-semibold">Карта для друга</h3>
                 <p className="text-sm text-muted-gray">Узнай судьбу близкого</p>
               </div>
               <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">

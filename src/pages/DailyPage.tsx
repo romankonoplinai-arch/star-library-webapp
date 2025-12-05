@@ -124,45 +124,91 @@ export function DailyPage() {
                 <h2 className="text-lg font-semibold">Транзиты дня</h2>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {dailyData.transits.map((transit, idx) => (
-                  <div
+                  <motion.div
                     key={idx}
-                    className="bg-cosmic-void/30 rounded-lg p-3 border border-accent-purple/20"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-accent-purple/20 via-cosmic-void/40 to-mystical-gold/10 p-4 border border-accent-purple/30"
                     onClick={() => haptic.light()}
                   >
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">{transit.emoji}</span>
-                      <span className="text-sm font-medium text-mystical-gold">
-                        {transit.planet} {transit.aspect} {transit.natal_planet}
-                      </span>
-                      <span className="text-xs text-muted-gray ml-auto">
-                        Энергия: {transit.energy_level}/10
-                      </span>
+                    {/* Декоративный градиент */}
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-mystical-gold/20 to-transparent rounded-full blur-2xl" />
+
+                    {/* Заголовок транзита */}
+                    <div className="relative flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-purple/40 to-mystical-gold/30 flex items-center justify-center shadow-lg">
+                        <span className="text-2xl">{transit.emoji}</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-base font-semibold text-soft-white">
+                          {transit.planet} {transit.aspect} {transit.natal_planet}
+                        </p>
+                        <p className="text-xs text-muted-gray">Космическое влияние</p>
+                      </div>
                     </div>
 
-                    {transit.dos && transit.dos.length > 0 && (
-                      <div className="mt-2">
-                        <p className="text-xs text-green-400 font-medium mb-1">✓ Рекомендуется:</p>
-                        <ul className="text-xs text-soft-white/80 space-y-0.5 ml-4">
-                          {transit.dos.map((item, i) => (
-                            <li key={i}>• {item}</li>
-                          ))}
-                        </ul>
+                    {/* Шкала энергии */}
+                    <div className="relative mb-4">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs text-soft-white/70">Сила влияния</span>
+                        <span className="text-xs font-semibold text-mystical-gold">{transit.energy_level}/10</span>
                       </div>
-                    )}
+                      <div className="h-2 bg-cosmic-void/60 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${transit.energy_level * 10}%` }}
+                          transition={{ duration: 0.8, delay: idx * 0.1 + 0.3 }}
+                          className="h-full rounded-full bg-gradient-to-r from-accent-purple via-mystical-gold to-accent-purple"
+                        />
+                      </div>
+                    </div>
 
-                    {transit.donts && transit.donts.length > 0 && (
-                      <div className="mt-2">
-                        <p className="text-xs text-red-400 font-medium mb-1">✗ Избегать:</p>
-                        <ul className="text-xs text-soft-white/80 space-y-0.5 ml-4">
-                          {transit.donts.map((item, i) => (
-                            <li key={i}>• {item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
+                    {/* DO / DON'T карточки */}
+                    <div className="grid grid-cols-2 gap-3">
+                      {transit.dos && transit.dos.length > 0 && (
+                        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-900/10 p-3 border border-emerald-500/30">
+                          <div className="absolute -top-2 -right-2 w-8 h-8 bg-emerald-400/20 rounded-full blur-lg" />
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-6 h-6 rounded-full bg-emerald-500/30 flex items-center justify-center">
+                              <span className="text-emerald-400 text-sm">✓</span>
+                            </div>
+                            <span className="text-xs font-bold text-emerald-400 uppercase tracking-wide">Делай</span>
+                          </div>
+                          <ul className="space-y-1.5">
+                            {transit.dos.slice(0, 3).map((item, i) => (
+                              <li key={i} className="text-[11px] text-soft-white/90 flex items-start gap-2">
+                                <span className="text-emerald-400 mt-0.5">→</span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {transit.donts && transit.donts.length > 0 && (
+                        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-rose-500/20 to-rose-900/10 p-3 border border-rose-500/30">
+                          <div className="absolute -top-2 -right-2 w-8 h-8 bg-rose-400/20 rounded-full blur-lg" />
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-6 h-6 rounded-full bg-rose-500/30 flex items-center justify-center">
+                              <span className="text-rose-400 text-sm">✗</span>
+                            </div>
+                            <span className="text-xs font-bold text-rose-400 uppercase tracking-wide">Избегай</span>
+                          </div>
+                          <ul className="space-y-1.5">
+                            {transit.donts.slice(0, 3).map((item, i) => (
+                              <li key={i} className="text-[11px] text-soft-white/90 flex items-start gap-2">
+                                <span className="text-rose-400 mt-0.5">→</span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
                 ))}
               </div>
             </GlassCard>
