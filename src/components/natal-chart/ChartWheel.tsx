@@ -161,9 +161,9 @@ export function ChartWheel({ planets, houses, size = 400, onPlanetClick }: Chart
 
       const path = `
         M ${x1} ${y1}
-        A ${outerRadius} ${outerRadius} 0 ${largeArc} 0 ${x4} ${y4}
+        A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${x4} ${y4}
         L ${x3} ${y3}
-        A ${zodiacRadius} ${zodiacRadius} 0 ${largeArc} 1 ${x2} ${y2}
+        A ${zodiacRadius} ${zodiacRadius} 0 ${largeArc} 0 ${x2} ${y2}
         Z
       `
 
