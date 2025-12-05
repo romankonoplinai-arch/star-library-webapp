@@ -57,7 +57,6 @@ export function NatalChartSVG({
   const houseOuterR = zodiacInnerR
   const houseInnerR = zodiacInnerR - 45
   const planetR = (houseOuterR + houseInnerR) / 2
-  const aspectR = houseInnerR - 10
 
   // Конвертация эклиптических градусов в угол на карте
   // ASC всегда слева (180°), против часовой стрелки
@@ -104,48 +103,6 @@ export function NatalChartSVG({
             L ${inner.start.x} ${inner.start.y}
             A ${innerR} ${innerR} 0 ${inner.largeArc} ${inner.sweep} ${inner.end.x} ${inner.end.y}
             Z`
-  }
-
-  // Аспекты между планетами
-  const aspectLines: React.ReactNode[] = []
-  const ASPECT_COLORS: Record<string, string> = {
-    conjunction: '#FFD700',
-    opposition: '#FF0000',
-    trine: '#00AA00',
-    square: '#FF0000',
-    sextile: '#00AA00',
-  }
-  const ASPECT_ANGLES: Record<string, number> = {
-    conjunction: 0,
-    opposition: 180,
-    trine: 120,
-    square: 90,
-    sextile: 60,
-  }
-
-  for (let i = 0; i < planets.length; i++) {
-    for (let j = i + 1; j < planets.length; j++) {
-      let diff = Math.abs(planets[i].degree - planets[j].degree)
-      if (diff > 180) diff = 360 - diff
-
-      for (const [aspect, angle] of Object.entries(ASPECT_ANGLES)) {
-        if (Math.abs(diff - angle) <= 8) {
-          const pos1 = degToPos(planets[i].degree, aspectR)
-          const pos2 = degToPos(planets[j].degree, aspectR)
-          aspectLines.push(
-            <line
-              key={`${planets[i].name}-${planets[j].name}`}
-              x1={pos1.x} y1={pos1.y}
-              x2={pos2.x} y2={pos2.y}
-              stroke={ASPECT_COLORS[aspect]}
-              strokeWidth="1"
-              opacity="0.6"
-            />
-          )
-          break
-        }
-      }
-    }
   }
 
   return (
@@ -223,10 +180,61 @@ export function NatalChartSVG({
       })}
 
       {/* Центральный круг */}
-      <circle cx={center} cy={center} r={houseInnerR} fill="white" stroke="#ccc" strokeWidth="1" />
+      <circle cx={center} cy={center} r={houseInnerR} fill="#FFF8E7" stroke="#C9A227" strokeWidth="1" />
 
-      {/* Аспекты */}
-      {aspectLines}
+      {/* Солнце и Луна в центре */}
+      <g>
+        {/* Лучи солнца */}
+        {Array.from({ length: 24 }).map((_, i) => {
+          const angle = (i * 15 * Math.PI) / 180
+          const isLong = i % 2 === 0
+          const innerR = isLong ? 25 : 30
+          const outerR = isLong ? 50 : 42
+          return (
+            <line
+              key={`ray-${i}`}
+              x1={center + innerR * Math.cos(angle)}
+              y1={center + innerR * Math.sin(angle)}
+              x2={center + outerR * Math.cos(angle)}
+              y2={center + outerR * Math.sin(angle)}
+              stroke="#C9A227"
+              strokeWidth={isLong ? 2 : 1}
+            />
+          )
+        })}
+
+        {/* Основной круг солнца */}
+        <circle cx={center} cy={center} r={25} fill="#FFF8E7" stroke="#C9A227" strokeWidth="1.5" />
+
+        {/* Луна (полумесяц) слева */}
+        <path
+          d={`M ${center - 8} ${center - 15}
+              A 15 15 0 1 1 ${center - 8} ${center + 15}
+              A 12 12 0 1 0 ${center - 8} ${center - 15}`}
+          fill="#C9A227"
+          opacity="0.8"
+        />
+
+        {/* Лицо солнца - глаза */}
+        <circle cx={center + 3} cy={center - 5} r={2} fill="#C9A227" />
+        <circle cx={center + 12} cy={center - 5} r={2} fill="#C9A227" />
+
+        {/* Лицо солнца - нос */}
+        <path
+          d={`M ${center + 7} ${center - 2} L ${center + 5} ${center + 3} L ${center + 9} ${center + 3}`}
+          fill="none"
+          stroke="#C9A227"
+          strokeWidth="1"
+        />
+
+        {/* Лицо солнца - улыбка */}
+        <path
+          d={`M ${center + 2} ${center + 7} Q ${center + 8} ${center + 12} ${center + 14} ${center + 7}`}
+          fill="none"
+          stroke="#C9A227"
+          strokeWidth="1"
+        />
+      </g>
 
       {/* Оси ASC-DSC и MC-IC */}
       {(() => {
