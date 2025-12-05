@@ -116,12 +116,12 @@ export function ChartWheel({ planets, houses, size = 400, onPlanetClick }: Chart
   // Конвертация градусов в позицию на круге
   const degToPos = (degree: number, radius: number) => {
     // Астрологический круг: движение против часовой стрелки
-    // 0° Овна справа, ASC слева (~180°), дома нумеруются против часовой
-    // Инвертируем Y чтобы получить движение против часовой
+    // 0° Овна справа, дальше ВНИЗ к Тельцу (30°), Близнецам (60°)...
+    // В SVG Y растёт вниз, поэтому + sin даёт движение вниз = против часовой
     const rad = (degree * Math.PI) / 180
     return {
       x: center + radius * Math.cos(rad),
-      y: center - radius * Math.sin(rad), // минус для против часовой
+      y: center + radius * Math.sin(rad), // плюс для движения вниз = против часовой
     }
   }
 
@@ -147,15 +147,15 @@ export function ChartWheel({ planets, houses, size = 400, onPlanetClick }: Chart
       const startRad = (startAngle * Math.PI) / 180
       const endRad = (endAngle * Math.PI) / 180
 
-      // Инвертируем Y для движения против часовой
+      // Y+ для движения вниз = против часовой в астрологии
       const x1 = center + outerRadius * Math.cos(startRad)
-      const y1 = center - outerRadius * Math.sin(startRad)
+      const y1 = center + outerRadius * Math.sin(startRad)
       const x2 = center + zodiacRadius * Math.cos(startRad)
-      const y2 = center - zodiacRadius * Math.sin(startRad)
+      const y2 = center + zodiacRadius * Math.sin(startRad)
       const x3 = center + zodiacRadius * Math.cos(endRad)
-      const y3 = center - zodiacRadius * Math.sin(endRad)
+      const y3 = center + zodiacRadius * Math.sin(endRad)
       const x4 = center + outerRadius * Math.cos(endRad)
-      const y4 = center - outerRadius * Math.sin(endRad)
+      const y4 = center + outerRadius * Math.sin(endRad)
 
       const largeArc = 0
 
@@ -171,7 +171,7 @@ export function ChartWheel({ planets, houses, size = 400, onPlanetClick }: Chart
       const midAngle = (index * 30 + 15) * Math.PI / 180
       const symbolRadius = (outerRadius + zodiacRadius) / 2
       const symbolX = center + symbolRadius * Math.cos(midAngle)
-      const symbolY = center - symbolRadius * Math.sin(midAngle)
+      const symbolY = center + symbolRadius * Math.sin(midAngle)
 
       return (
         <g key={sign}>
