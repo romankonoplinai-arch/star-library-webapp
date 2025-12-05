@@ -157,6 +157,19 @@ export interface AgentResponse {
   character?: string
 }
 
+export interface CompatibilityResponse {
+  success: boolean
+  user_sign: string
+  partner_sign: string
+  compatibility_percentage: number
+  love: number
+  communication: number
+  trust: number
+  passion: number
+  analysis: string
+  advice: string
+}
+
 export interface SubscriptionResponse {
   tier: 'FREE' | 'PREMIUM' | 'VIP'
   expiresAt?: string
@@ -291,6 +304,14 @@ class ApiClient {
     return this.fetch('/share/friend-chart', {
       method: 'POST',
       body: JSON.stringify(data),
+    })
+  }
+
+  // Zodiac compatibility
+  async getCompatibility(partnerSign: string): Promise<CompatibilityResponse> {
+    return this.fetch<CompatibilityResponse>('/compatibility', {
+      method: 'POST',
+      body: JSON.stringify({ partner_sign: partnerSign }),
     })
   }
 }

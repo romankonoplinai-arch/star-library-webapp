@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { HomePage, TarotPage, NatalChartPage, ProfilePage, WelcomePage, DailyPage, FriendChartPage } from '@/pages'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { TarotPage, NatalChartPage, ProfilePage, WelcomePage, DailyPage, FriendChartPage } from '@/pages'
 import { CelticCrossPage } from '@/pages/CelticCrossPage'
 import { ThreeCardPage } from '@/pages/ThreeCardPage'
 import { DailySpreadPage } from '@/pages/DailySpreadPage'
+import { CompatibilityPage } from '@/pages/CompatibilityPage'
 import { Navigation } from '@/components/Navigation'
 import { StarsBackground } from '@/components/background'
 import { useTelegram } from '@/hooks'
@@ -68,8 +69,9 @@ function AppContent() {
   return (
     <div className="relative z-10">
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<Navigate to="/daily" replace />} />
         <Route path="/daily" element={<DailyPage />} />
+        <Route path="/compatibility" element={<CompatibilityPage />} />
         <Route path="/tarot" element={<TarotPage />} />
         <Route path="/celtic-cross" element={<CelticCrossPage />} />
         <Route path="/three-card" element={<ThreeCardPage />} />

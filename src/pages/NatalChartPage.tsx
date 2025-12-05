@@ -329,6 +329,15 @@ ${planetsList}
           >
             ✨ Поделиться
           </button>
+          <button
+            onClick={() => {
+              haptic.light()
+              navigate('/friend')
+            }}
+            className="px-5 py-2.5 bg-green-500/20 hover:bg-green-500/40 rounded-xl text-sm font-medium transition-colors border border-green-500/40 text-green-400"
+          >
+            🎁 Для друга
+          </button>
         </motion.div>
 
       </motion.div>

@@ -10,8 +10,8 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { path: '/', label: 'Главная', icon: '🏠' },
-  { path: '/daily', label: 'Daily', icon: '🔮' },
+  { path: '/daily', label: 'Daily', icon: '🌟' },
+  { path: '/compatibility', label: 'Любовь', icon: '💕' },
   { path: '/tarot', label: 'Таро', icon: '🎴' },
   { path: '/natal', label: 'Карта', icon: '🌌' },
   { path: '/profile', label: 'Профиль', icon: '✨' },
