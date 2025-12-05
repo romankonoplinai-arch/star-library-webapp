@@ -88,7 +88,9 @@ export function NatalChartSVG({
     const p3 = angleToPos(endAngle, innerR)
     const p4 = angleToPos(startAngle, innerR)
 
-    const sweep = endAngle < startAngle ? 0 : 1
+    // sweep=1 для дуги по часовой, sweep=0 против часовой
+    // При + формуле endAngle > startAngle, нужен sweep=1
+    const sweep = endAngle > startAngle ? 1 : 0
 
     return `M ${p1.x} ${p1.y}
             A ${outerR} ${outerR} 0 0 ${sweep} ${p2.x} ${p2.y}
