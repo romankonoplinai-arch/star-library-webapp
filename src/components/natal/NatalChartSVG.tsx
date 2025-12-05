@@ -28,17 +28,18 @@ const SIGN_ELEMENTS = ['fire', 'earth', 'air', 'water', 'fire', 'earth', 'air', 
 
 const ZODIAC_SYMBOLS = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓']
 
-const PLANET_COLORS: Record<string, string> = {
-  Sun: '#FFD700',
-  Moon: '#C0C0C0',
-  Mercury: '#FFA500',
-  Venus: '#FF69B4',
-  Mars: '#FF4500',
-  Jupiter: '#DAA520',
-  Saturn: '#4682B4',
-  Uranus: '#40E0D0',
-  Neptune: '#4169E1',
-  Pluto: '#8B0000',
+// Градиентные цвета планет как в нижней панели
+const PLANET_GRADIENTS: Record<string, { from: string; to: string }> = {
+  Sun: { from: '#FFE566', to: '#FFB800' },
+  Moon: { from: '#E8E8E8', to: '#B0B0B0' },
+  Mercury: { from: '#FFB366', to: '#FF8C00' },
+  Venus: { from: '#66FF66', to: '#228B22' },
+  Mars: { from: '#FF6B6B', to: '#CC0000' },
+  Jupiter: { from: '#DEB887', to: '#8B4513' },
+  Saturn: { from: '#87CEEB', to: '#4682B4' },
+  Uranus: { from: '#40E0D0', to: '#008B8B' },
+  Neptune: { from: '#6495ED', to: '#0000CD' },
+  Pluto: { from: '#8B4513', to: '#4A2500' },
 }
 
 export function NatalChartSVG({
@@ -198,28 +199,51 @@ export function NatalChartSVG({
         preserveAspectRatio="xMidYMid slice"
       />
 
-      {/* Оси ASC-DSC и MC-IC */}
+      {/* Оси ASC-DSC и MC-IC - только в кольце домов, не заходят в центр */}
       {(() => {
-        const ascPos = degToPos(ascendant, zodiacOuterR)
-        const dscPos = degToPos(ascendant + 180, houseInnerR)
+        const ascPosOuter = degToPos(ascendant, zodiacOuterR)
+        const ascPosInner = degToPos(ascendant, houseInnerR)
+        const dscPosOuter = degToPos(ascendant + 180, zodiacOuterR)
+        const dscPosInner = degToPos(ascendant + 180, houseInnerR)
+
         const mc = houses[9] || (ascendant + 270) % 360
-        const mcPos = degToPos(mc, zodiacOuterR)
-        const icPos = degToPos((mc + 180) % 360, houseInnerR)
+        const mcPosOuter = degToPos(mc, zodiacOuterR)
+        const mcPosInner = degToPos(mc, houseInnerR)
+        const icPosOuter = degToPos((mc + 180) % 360, zodiacOuterR)
+        const icPosInner = degToPos((mc + 180) % 360, houseInnerR)
 
         return (
           <g>
-            <line x1={ascPos.x} y1={ascPos.y} x2={dscPos.x} y2={dscPos.y} stroke="#333" strokeWidth="1.5" />
-            <line x1={mcPos.x} y1={mcPos.y} x2={icPos.x} y2={icPos.y} stroke="#333" strokeWidth="1.5" />
-            <text x={ascPos.x - 18} y={ascPos.y} fontSize="10" fill="#333" fontWeight="bold">Asc</text>
+            {/* ASC линия */}
+            <line x1={ascPosOuter.x} y1={ascPosOuter.y} x2={ascPosInner.x} y2={ascPosInner.y} stroke="#333" strokeWidth="1.5" />
+            {/* DSC линия */}
+            <line x1={dscPosOuter.x} y1={dscPosOuter.y} x2={dscPosInner.x} y2={dscPosInner.y} stroke="#333" strokeWidth="1.5" />
+            {/* MC линия */}
+            <line x1={mcPosOuter.x} y1={mcPosOuter.y} x2={mcPosInner.x} y2={mcPosInner.y} stroke="#333" strokeWidth="1.5" />
+            {/* IC линия */}
+            <line x1={icPosOuter.x} y1={icPosOuter.y} x2={icPosInner.x} y2={icPosInner.y} stroke="#333" strokeWidth="1.5" />
+            <text x={ascPosOuter.x - 18} y={ascPosOuter.y} fontSize="10" fill="#333" fontWeight="bold">Asc</text>
           </g>
         )
       })()}
 
-      {/* Планеты */}
+      {/* Градиенты для планет */}
+      <defs>
+        {planets.map((planet) => {
+          const gradient = PLANET_GRADIENTS[planet.name] || { from: '#888', to: '#555' }
+          return (
+            <radialGradient key={`grad-${planet.name}`} id={`planet-${planet.name}`} cx="30%" cy="30%">
+              <stop offset="0%" stopColor={gradient.from} />
+              <stop offset="100%" stopColor={gradient.to} />
+            </radialGradient>
+          )
+        })}
+      </defs>
+
+      {/* Планеты - цветные шарики с градиентом */}
       {planets.map((planet) => {
         const pos = degToPos(planet.degree, planetR)
         const isHovered = hoveredPlanet === planet.name
-        const color = PLANET_COLORS[planet.name] || '#888'
 
         return (
           <motion.g
@@ -231,18 +255,12 @@ export function NatalChartSVG({
             animate={{ scale: isHovered ? 1.2 : 1 }}
             transition={{ type: 'spring', stiffness: 300 }}
           >
-            <circle cx={pos.x} cy={pos.y} r={12} fill="white" stroke={color} strokeWidth="2" />
-            <text
-              x={pos.x}
-              y={pos.y}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fill={color}
-              fontSize="12"
-              fontWeight="bold"
-            >
-              {planet.symbol}
-            </text>
+            {/* Тень */}
+            <circle cx={pos.x + 1} cy={pos.y + 1} r={11} fill="rgba(0,0,0,0.2)" />
+            {/* Основной шарик с градиентом */}
+            <circle cx={pos.x} cy={pos.y} r={11} fill={`url(#planet-${planet.name})`} />
+            {/* Блик */}
+            <ellipse cx={pos.x - 3} cy={pos.y - 3} rx={4} ry={3} fill="rgba(255,255,255,0.4)" />
           </motion.g>
         )
       })}
