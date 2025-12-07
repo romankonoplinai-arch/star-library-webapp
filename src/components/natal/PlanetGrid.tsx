@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { PLANETS_INFO, ZODIAC_SIGNS, formatDegree, getSignFromDegree } from '@/lib/natalData'
+import { PLANETS_INFO } from '@/lib/natalData'
 import { cn } from '@/lib/utils'
 
 export interface PlanetData {
@@ -13,8 +13,6 @@ interface PlanetGridProps {
   planets: PlanetData[]
   selectedPlanet: string | null
   onPlanetSelect: (planetName: string) => void
-  isPlanetLocked?: (planetName: string) => boolean
-  getUnlockLevel?: (planetName: string) => number
 }
 
 // SVG иконки планет (реалистичные)
@@ -50,16 +48,12 @@ const PlanetIcon = ({ planet, size = 40 }: { planet: string; size?: number }) =>
   )
 }
 
-export function PlanetGrid({ planets, selectedPlanet, onPlanetSelect, isPlanetLocked, getUnlockLevel }: PlanetGridProps) {
+export function PlanetGrid({ planets, selectedPlanet, onPlanetSelect }: PlanetGridProps) {
   return (
     <div className="grid grid-cols-5 gap-2">
       {planets.map((planet, index) => {
         const info = PLANETS_INFO[planet.name as keyof typeof PLANETS_INFO]
-        const signKey = getSignFromDegree(planet.degree)
-        const sign = ZODIAC_SIGNS[signKey as keyof typeof ZODIAC_SIGNS]
         const isSelected = selectedPlanet === planet.name
-        const isLocked = isPlanetLocked?.(planet.name) ?? false
-        const unlockLevel = getUnlockLevel?.(planet.name) ?? 1
 
         if (!info) return null
 
@@ -69,24 +63,14 @@ export function PlanetGrid({ planets, selectedPlanet, onPlanetSelect, isPlanetLo
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.05 }}
-            onClick={() => !isLocked && onPlanetSelect(planet.name)}
+            onClick={() => onPlanetSelect(planet.name)}
             className={cn(
               'flex flex-col items-center p-2 rounded-xl transition-all relative',
-              isLocked
-                ? 'bg-white/5 opacity-50 cursor-not-allowed'
-                : isSelected
-                  ? 'bg-gradient-to-br from-accent-purple/40 to-mystical-gold/40 ring-2 ring-mystical-gold/50'
-                  : 'bg-white/5 hover:bg-white/10 active:scale-95'
+              isSelected
+                ? 'bg-gradient-to-br from-accent-purple/40 to-mystical-gold/40 ring-2 ring-mystical-gold/50'
+                : 'bg-white/5 hover:bg-white/10 active:scale-95'
             )}
           >
-            {/* Locked overlay */}
-            {isLocked && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-deep-space/80 rounded-xl z-10">
-                <span className="text-xl">🔒</span>
-                <span className="text-[9px] text-muted-gray mt-0.5">Lv.{unlockLevel}</span>
-              </div>
-            )}
-
             {/* Иконка планеты */}
             <PlanetIcon planet={planet.name} size={36} />
 
@@ -101,7 +85,7 @@ export function PlanetGrid({ planets, selectedPlanet, onPlanetSelect, isPlanetLo
             </span>
 
             {/* Ретроград */}
-            {planet.retrograde && !isLocked && (
+            {planet.retrograde && (
               <span className="absolute top-1 right-1 text-[10px] text-red-400 font-bold">
                 R
               </span>

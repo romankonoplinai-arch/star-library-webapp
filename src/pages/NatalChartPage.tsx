@@ -23,15 +23,6 @@ const TABS = [
   { id: 'houses', label: 'Планеты в Домах' },
 ]
 
-// Уровни разблокировки планет
-const getUnlockLevel = (planet: string): number => {
-  if (['Sun', 'Moon'].includes(planet)) return 1
-  if (['Mercury', 'Venus', 'Mars'].includes(planet)) return 11
-  if (['Jupiter', 'Saturn'].includes(planet)) return 26
-  if (['Uranus', 'Neptune', 'Pluto'].includes(planet)) return 51
-  return 1
-}
-
 export function NatalChartPage() {
   const [activeTab, setActiveTab] = useState('planets')
   const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null)
@@ -52,7 +43,7 @@ export function NatalChartPage() {
   const starDust = useUserStore((s) => s.starDust)
   const setNatalChartUpgrade = useUserStore((s) => s.setNatalChartUpgrade)
 
-  const upgradeCost = natalChartLevel * 10
+  const upgradeCost = 15
   const canUpgrade = starDust >= upgradeCost && natalChartLevel < 100
 
   const handleUpgrade = async () => {
@@ -75,9 +66,6 @@ export function NatalChartPage() {
       setUpgrading(false)
     }
   }
-
-  // Проверка разблокировки планеты
-  const isPlanetLocked = (planet: string) => natalChartLevel < getUnlockLevel(planet)
 
   useBackButton(() => navigate('/'))
 
@@ -324,14 +312,10 @@ export function NatalChartPage() {
               )}
             </button>
 
-            {/* Hint about unlocks */}
-            {natalChartLevel < 51 && (
-              <p className="text-[10px] text-muted-gray text-center mt-2">
-                {natalChartLevel < 11 && '🔓 Lv.11: откроются ☿ Меркурий, ♀ Венера, ♂ Марс'}
-                {natalChartLevel >= 11 && natalChartLevel < 26 && '🔓 Lv.26: откроются ♃ Юпитер, ♄ Сатурн'}
-                {natalChartLevel >= 26 && natalChartLevel < 51 && '🔓 Lv.51: откроются ♅ Уран, ♆ Нептун, ♇ Плутон'}
-              </p>
-            )}
+            {/* Hint about level */}
+            <p className="text-[10px] text-muted-gray text-center mt-2">
+              Чем выше уровень, тем глубже анализ твоей карты
+            </p>
           </GlassCard>
         </motion.div>
 
@@ -373,8 +357,6 @@ export function NatalChartPage() {
                 planets={planets}
                 selectedPlanet={selectedPlanet}
                 onPlanetSelect={handlePlanetSelect}
-                isPlanetLocked={isPlanetLocked}
-                getUnlockLevel={getUnlockLevel}
               />
             ) : (
               <HouseGrid
@@ -392,58 +374,20 @@ export function NatalChartPage() {
           <button
             onClick={() => {
               haptic.medium()
-              navigate('/natal-form')
+              setShowFullAnalysis(true)
             }}
-            className="px-5 py-2.5 bg-accent-purple/30 hover:bg-accent-purple/50 rounded-xl text-sm font-medium transition-colors border border-accent-purple/40"
+            className="flex-1 py-3 bg-gradient-to-r from-accent-purple to-mystical-gold rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98] text-white"
           >
-            🔄 Пересчитать
-          </button>
-          <button
-            onClick={() => {
-              haptic.light()
-              const botUsername = 'Star_library_robot'
-              const deepLink = `https://t.me/${botUsername}?start=natal`
-
-              const planetsList = planets.slice(0, 7).map(p => {
-                const sign = ZODIAC_SIGNS[getSignFromDegree(p.degree) as keyof typeof ZODIAC_SIGNS]
-                const planetNames: Record<string, string> = {
-                  'Sun': '☉ Солнце',
-                  'Moon': '☽ Луна',
-                  'Mercury': '☿ Меркурий',
-                  'Venus': '♀ Венера',
-                  'Mars': '♂ Марс',
-                  'Jupiter': '♃ Юпитер',
-                  'Saturn': '♄ Сатурн'
-                }
-                return `${planetNames[p.name] || p.name}: ${sign?.nameRu || ''}`
-              }).join('\n')
-
-              const shareText = `🌌 Моя натальная карта
-
-✨ Большая тройка:
-☉ Солнце: ${sunSign?.nameRu}
-☽ Луна: ${moonSign?.nameRu}
-⬆ Асцендент: ${ascSign?.nameRu}
-
-🪐 Планеты в знаках:
-${planetsList}
-
-🔮 Узнай свою судьбу:`
-
-              share(shareText, deepLink)
-            }}
-            className="px-5 py-2.5 bg-mystical-gold/20 hover:bg-mystical-gold/40 rounded-xl text-sm font-medium transition-colors border border-mystical-gold/40 text-mystical-gold"
-          >
-            ✨ Поделиться
+            📖 Подробный разбор
           </button>
           <button
             onClick={() => {
               haptic.light()
               navigate('/friend')
             }}
-            className="px-5 py-2.5 bg-green-500/20 hover:bg-green-500/40 rounded-xl text-sm font-medium transition-colors border border-green-500/40 text-green-400"
+            className="px-5 py-3 bg-green-500/20 hover:bg-green-500/40 rounded-xl text-sm font-medium transition-colors border border-green-500/40 text-green-400"
           >
-            🎁 Для друга
+            🎁 +20✨
           </button>
         </motion.div>
 

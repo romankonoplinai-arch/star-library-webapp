@@ -311,7 +311,7 @@ class ApiClient {
     zodiac_sign: string
     zodiac_emoji: string
     content: string
-  }): Promise<{ success: boolean; chart_id: string }> {
+  }): Promise<{ success: boolean; chart_id: string; star_dust_earned?: number }> {
     return this.fetch('/share/friend-chart', {
       method: 'POST',
       body: JSON.stringify(data),

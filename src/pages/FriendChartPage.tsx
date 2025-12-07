@@ -51,6 +51,7 @@ export function FriendChartPage() {
   const firstName = useUserStore((s) => s.firstName)
 
   const [step, setStep] = useState<'input' | 'result'>('input')
+  const [starDustEarned, setStarDustEarned] = useState<number | null>(null)
   const [friendData, setFriendData] = useState<FriendData>({
     name: '',
     birthDate: '',
@@ -89,6 +90,11 @@ export function FriendChartPage() {
         content: result.text, // Full detailed description
       })
 
+      // Show bonus if earned
+      if (response.star_dust_earned) {
+        setStarDustEarned(response.star_dust_earned)
+      }
+
       // Deep link - use chart_id if available, otherwise generic
       const deepLink = response.success && response.chart_id
         ? `https://t.me/${botUsername}?start=chart_${response.chart_id}`
@@ -113,6 +119,7 @@ export function FriendChartPage() {
     setStep('input')
     setFriendData({ name: '', birthDate: '', birthTime: '', birthPlace: '' })
     setResult(null)
+    setStarDustEarned(null)
   }
 
   if (step === 'result' && result) {
@@ -153,9 +160,16 @@ export function FriendChartPage() {
           </motion.div>
 
           <motion.div variants={staggerItem} className="space-y-3">
-            <MagicButton onClick={handleShare} className="w-full">
-              📤 Поделиться с {result.name}
-            </MagicButton>
+            {starDustEarned ? (
+              <div className="w-full py-3 px-4 bg-gradient-to-r from-mystical-gold/20 to-accent-purple/20 rounded-xl text-center border border-mystical-gold/30">
+                <span className="text-lg">+{starDustEarned} ✨</span>
+                <p className="text-sm text-mystical-gold">Бонус за карту друга!</p>
+              </div>
+            ) : (
+              <MagicButton onClick={handleShare} className="w-full">
+                📤 Поделиться с {result.name}
+              </MagicButton>
+            )}
 
             <button
               onClick={handleNewCalculation}
