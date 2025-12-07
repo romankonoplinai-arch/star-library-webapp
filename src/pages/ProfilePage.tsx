@@ -311,14 +311,20 @@ export function ProfilePage() {
 
                     {/* Главная фича - Личный Хранитель */}
                     <div className="bg-accent-purple/20 rounded-lg p-2.5 mb-3 border border-accent-purple/30">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-lg">🌙</span>
-                        <p className="text-xs font-bold text-accent-purple">Личный Хранитель 24/7</p>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <p className="text-xs font-bold text-accent-purple">💬 Чат с Хранителем 24/7</p>
+                        <div className="flex gap-0.5">
+                          <span className="text-xs">🌙</span>
+                          <span className="text-xs">🔥</span>
+                          <span className="text-xs">🌑</span>
+                          <span className="text-xs">✨</span>
+                          <span className="text-xs">🌌</span>
+                        </div>
                       </div>
                       <p className="text-[10px] text-soft-white/80 leading-relaxed">
-                        Твой космический друг и наставник. Поддержит в трудную минуту,
-                        даст мудрый совет, поможет разобраться в себе через астрологию.
-                        Всегда рядом, когда нужна поддержка или предсказание.
+                        5 уникальных хранителей на выбор: Лунара поддержит, Марсик замотивирует,
+                        Селена исцелит, Меркурий развеселит, Аристарх даст мудрость.
+                        Твой космический друг всегда рядом!
                       </p>
                     </div>
 
