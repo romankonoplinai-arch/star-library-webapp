@@ -80,7 +80,12 @@ export function ProfilePage() {
     // Открываем бота с deep link для покупки VIP
     const botUsername = 'Star_library_robot'
     const deepLink = `https://t.me/${botUsername}?start=buy_vip_month`
-    window.Telegram?.WebApp?.openTelegramLink(deepLink)
+    const webApp = (window as any).Telegram?.WebApp
+    if (typeof webApp?.openTelegramLink === 'function') {
+      webApp.openTelegramLink(deepLink)
+    } else {
+      window.open(deepLink, '_blank')
+    }
   }
 
   const handleEditName = () => {
