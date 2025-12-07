@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { TarotPage, NatalChartPage, ProfilePage, WelcomePage, DailyPage, FriendChartPage } from '@/pages'
 import { CelticCrossPage } from '@/pages/CelticCrossPage'
 import { ThreeCardPage } from '@/pages/ThreeCardPage'
@@ -16,6 +16,7 @@ function AppContent() {
   const { isReady: isTelegramReady, initDataRaw } = useTelegram()
   const syncFromApi = useUserStore((s) => s.syncFromApi)
   const [showWelcome, setShowWelcome] = useState(true)
+  const navigate = useNavigate()
 
   // Инициализация: передать initData в API и загрузить данные
   useEffect(() => {
@@ -54,15 +55,15 @@ function AppContent() {
     )
   }
 
+  // Handle welcome completion - navigate to daily first, then hide welcome
+  const handleWelcomeComplete = () => {
+    navigate('/daily', { replace: true })
+    setShowWelcome(false)
+  }
+
   // Show welcome screen on every app launch
   if (showWelcome) {
-    return (
-      <WelcomePage
-        onComplete={() => {
-          setShowWelcome(false)
-        }}
-      />
-    )
+    return <WelcomePage onComplete={handleWelcomeComplete} />
   }
 
   // Show main app

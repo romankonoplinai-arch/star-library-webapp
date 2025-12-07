@@ -77,7 +77,10 @@ export function ProfilePage() {
 
   const handleUpgrade = () => {
     haptic.medium()
-    // TODO: открыть paywall
+    // Открываем бота с deep link для покупки VIP
+    const botUsername = 'Star_library_robot'
+    const deepLink = `https://t.me/${botUsername}?start=buy_vip_month`
+    window.Telegram?.WebApp?.openTelegramLink(deepLink)
   }
 
   const handleEditName = () => {
@@ -276,22 +279,48 @@ export function ProfilePage() {
                 </div>
                 {subscriptionTier === 'free' && (
                   <MagicButton size="sm" onClick={handleUpgrade}>
-                    Upgrade
+                    ⭐ VIP
                   </MagicButton>
                 )}
               </div>
 
               {subscriptionTier === 'free' && (
+                <div className="pt-3 border-t border-white/10 space-y-4">
+                  {/* FREE tier */}
+                  <div>
+                    <p className="text-sm font-semibold text-muted-gray mb-2">🌱 FREE (сейчас)</p>
+                    <ul className="text-xs text-soft-white/70 space-y-1 ml-4">
+                      <li>• Гороскоп дня — 3 раза</li>
+                      <li>• Совместимость — 1 раз/день</li>
+                      <li>• Таро (1 карта) — 3 раза/день</li>
+                      <li>• Streak бонусы</li>
+                    </ul>
+                  </div>
+
+                  {/* VIP tier */}
+                  <div className="bg-gradient-to-r from-mystical-gold/10 to-accent-purple/10 rounded-xl p-3 border border-mystical-gold/30">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-bold text-mystical-gold">👑 VIP</p>
+                      <span className="text-xs text-mystical-gold font-semibold">150 ⭐/мес</span>
+                    </div>
+                    <ul className="text-xs text-soft-white space-y-1 ml-4">
+                      <li>• Всё безлимитно</li>
+                      <li>• <span className="text-mystical-gold">Натальная карта</span> — полный доступ</li>
+                      <li>• <span className="text-mystical-gold">Транзиты</span> — персональные</li>
+                      <li>• <span className="text-mystical-gold">Celtic Cross</span> — 10 карт</li>
+                      <li>• AI интерпретации без ограничений</li>
+                      <li>• +1000 Star Dust при старте</li>
+                    </ul>
+                    <MagicButton onClick={handleUpgrade} className="w-full mt-3" size="sm">
+                      Стать VIP ⭐
+                    </MagicButton>
+                  </div>
+                </div>
+              )}
+
+              {subscriptionTier === 'vip' && (
                 <div className="pt-3 border-t border-white/10">
-                  <p className="text-sm text-muted-gray mb-2">
-                    VIP включает:
-                  </p>
-                  <ul className="text-sm space-y-1">
-                    <li>✨ Персональные транзиты</li>
-                    <li>🎴 Celtic Cross расклад</li>
-                    <li>💬 Больше сообщений AI</li>
-                    <li>🌟 Глубокая натальная карта</li>
-                  </ul>
+                  <p className="text-sm text-mystical-gold">✨ У тебя полный доступ ко всем функциям!</p>
                 </div>
               )}
             </div>
