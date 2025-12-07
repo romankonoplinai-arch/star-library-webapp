@@ -308,12 +308,25 @@ export function ProfilePage() {
                       <p className="text-sm font-bold text-mystical-gold">👑 VIP</p>
                       <span className="text-xs text-mystical-gold font-semibold">150 ⭐/мес</span>
                     </div>
+
+                    {/* Главная фича - Личный Хранитель */}
+                    <div className="bg-accent-purple/20 rounded-lg p-2.5 mb-3 border border-accent-purple/30">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="text-lg">🌙</span>
+                        <p className="text-xs font-bold text-accent-purple">Личный Хранитель 24/7</p>
+                      </div>
+                      <p className="text-[10px] text-soft-white/80 leading-relaxed">
+                        Твой космический друг и наставник. Поддержит в трудную минуту,
+                        даст мудрый совет, поможет разобраться в себе через астрологию.
+                        Всегда рядом, когда нужна поддержка или предсказание.
+                      </p>
+                    </div>
+
                     <ul className="text-xs text-soft-white space-y-1 ml-4">
-                      <li>• Всё безлимитно</li>
                       <li>• <span className="text-mystical-gold">Натальная карта</span> — полный доступ</li>
                       <li>• <span className="text-mystical-gold">Транзиты</span> — персональные</li>
                       <li>• <span className="text-mystical-gold">Celtic Cross</span> — 10 карт</li>
-                      <li>• AI интерпретации без ограничений</li>
+                      <li>• Всё безлимитно</li>
                       <li>• +1000 Star Dust при старте</li>
                     </ul>
                     <MagicButton onClick={handleUpgrade} className="w-full mt-3" size="sm">
