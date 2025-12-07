@@ -9,7 +9,7 @@ import {
   FullAnalysisModal,
   type PlanetData,
 } from '@/components/natal'
-import { GlassCard, LoadingSpinner } from '@/components/ui'
+import { GlassCard, LoadingSpinner, MagicButton } from '@/components/ui'
 import { TabSwitcher } from '@/components/ui/TabSwitcher'
 import { useBackButton, useHaptic, useShare } from '@/hooks'
 import { staggerContainer, staggerItem } from '@/lib/animations'
@@ -23,6 +23,15 @@ const TABS = [
   { id: 'houses', label: 'Планеты в Домах' },
 ]
 
+// Уровни разблокировки планет
+const getUnlockLevel = (planet: string): number => {
+  if (['Sun', 'Moon'].includes(planet)) return 1
+  if (['Mercury', 'Venus', 'Mars'].includes(planet)) return 11
+  if (['Jupiter', 'Saturn'].includes(planet)) return 26
+  if (['Uranus', 'Neptune', 'Pluto'].includes(planet)) return 51
+  return 1
+}
+
 export function NatalChartPage() {
   const [activeTab, setActiveTab] = useState('planets')
   const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null)
@@ -31,6 +40,7 @@ export function NatalChartPage() {
   const [chartData, setChartData] = useState<NatalChartApiResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [upgrading, setUpgrading] = useState(false)
   const navigate = useNavigate()
   const haptic = useHaptic()
   const { share } = useShare()
@@ -39,6 +49,35 @@ export function NatalChartPage() {
   const birthPlace = useUserStore((s) => s.birthPlace)
   const birthTime = useUserStore((s) => s.birthTime)
   const natalChartLevel = useUserStore((s) => s.natalChartLevel)
+  const starDust = useUserStore((s) => s.starDust)
+  const setNatalChartUpgrade = useUserStore((s) => s.setNatalChartUpgrade)
+
+  const upgradeCost = natalChartLevel * 10
+  const canUpgrade = starDust >= upgradeCost && natalChartLevel < 100
+
+  const handleUpgrade = async () => {
+    if (!canUpgrade || upgrading) return
+    haptic.medium()
+    setUpgrading(true)
+
+    try {
+      const result = await api.upgradeNatalChart()
+      if (result.success) {
+        setNatalChartUpgrade(result.new_level, result.star_dust)
+        haptic.success()
+      } else {
+        haptic.error()
+      }
+    } catch (err) {
+      haptic.error()
+      console.error('Upgrade failed:', err)
+    } finally {
+      setUpgrading(false)
+    }
+  }
+
+  // Проверка разблокировки планеты
+  const isPlanetLocked = (planet: string) => natalChartLevel < getUnlockLevel(planet)
 
   useBackButton(() => navigate('/'))
 
@@ -230,6 +269,72 @@ export function NatalChartPage() {
           </GlassCard>
         </motion.div>
 
+        {/* Upgrade Card */}
+        <motion.div variants={staggerItem}>
+          <GlassCard className="p-4 bg-gradient-to-r from-accent-purple/10 to-mystical-gold/10 border-mystical-gold/30">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">📈</span>
+                <span className="font-semibold text-sm">Уровень карты</span>
+              </div>
+              <span className="px-2 py-0.5 bg-mystical-gold/20 rounded-full text-xs font-bold text-mystical-gold">
+                {natalChartLevel}/100
+              </span>
+            </div>
+
+            {/* Progress bar */}
+            <div className="h-2 bg-deep-space rounded-full overflow-hidden mb-3">
+              <div
+                className="h-full bg-gradient-to-r from-accent-purple to-mystical-gold transition-all duration-500"
+                style={{ width: `${natalChartLevel}%` }}
+              />
+            </div>
+
+            {/* Info row */}
+            <div className="flex items-center justify-between text-xs mb-3">
+              <div className="flex items-center gap-1 text-muted-gray">
+                <span>💫</span>
+                <span>Баланс: <span className="text-mystical-gold font-semibold">{starDust} ✨</span></span>
+              </div>
+              <div className="text-muted-gray">
+                Следующий: <span className="text-soft-white">{upgradeCost} ✨</span>
+              </div>
+            </div>
+
+            {/* Upgrade button */}
+            <button
+              onClick={handleUpgrade}
+              disabled={!canUpgrade || upgrading}
+              className={`w-full py-2.5 rounded-xl font-medium text-sm transition-all ${
+                canUpgrade && !upgrading
+                  ? 'bg-gradient-to-r from-accent-purple to-mystical-gold text-white hover:opacity-90 active:scale-[0.98]'
+                  : 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              {upgrading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="animate-spin">⏳</span> Прокачка...
+                </span>
+              ) : natalChartLevel >= 100 ? (
+                '🏆 Максимальный уровень!'
+              ) : canUpgrade ? (
+                `⭐ Прокачать до Lv.${natalChartLevel + 1} за ${upgradeCost} ✨`
+              ) : (
+                `🔒 Нужно ${upgradeCost} ✨ (не хватает ${upgradeCost - starDust})`
+              )}
+            </button>
+
+            {/* Hint about unlocks */}
+            {natalChartLevel < 51 && (
+              <p className="text-[10px] text-muted-gray text-center mt-2">
+                {natalChartLevel < 11 && '🔓 Lv.11: откроются ☿ Меркурий, ♀ Венера, ♂ Марс'}
+                {natalChartLevel >= 11 && natalChartLevel < 26 && '🔓 Lv.26: откроются ♃ Юпитер, ♄ Сатурн'}
+                {natalChartLevel >= 26 && natalChartLevel < 51 && '🔓 Lv.51: откроются ♅ Уран, ♆ Нептун, ♇ Плутон'}
+              </p>
+            )}
+          </GlassCard>
+        </motion.div>
+
         {/* SVG Chart - Full Width */}
         <motion.div variants={staggerItem} className="-mx-4">
           <div className="px-1">
@@ -268,6 +373,8 @@ export function NatalChartPage() {
                 planets={planets}
                 selectedPlanet={selectedPlanet}
                 onPlanetSelect={handlePlanetSelect}
+                isPlanetLocked={isPlanetLocked}
+                getUnlockLevel={getUnlockLevel}
               />
             ) : (
               <HouseGrid

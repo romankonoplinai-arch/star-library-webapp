@@ -26,6 +26,7 @@ interface UserState {
   setCharacter: (character: string) => void
   setLoading: (loading: boolean) => void
   syncFromApi: (data: ApiUserData) => void
+  setNatalChartUpgrade: (newLevel: number, newStarDust: number) => void
   isPremium: () => boolean
   isVip: () => boolean
 }
@@ -94,6 +95,9 @@ export const useUserStore = create<UserState>((set, get) => ({
       isLoading: false,
       isLoaded: true,
     }),
+
+  setNatalChartUpgrade: (newLevel, newStarDust) =>
+    set({ natalChartLevel: newLevel, starDust: newStarDust }),
 
   isPremium: () => {
     return get().subscriptionTier === 'vip'

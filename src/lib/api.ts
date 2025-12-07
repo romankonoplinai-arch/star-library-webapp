@@ -221,6 +221,17 @@ class ApiClient {
     return this.fetch<NatalChartResponse>('/natal-chart')
   }
 
+  // Upgrade natal chart level
+  async upgradeNatalChart(): Promise<{
+    success: boolean
+    new_level: number
+    star_dust: number
+    next_cost: number
+    error?: string
+  }> {
+    return this.fetch('/natal-chart/upgrade', { method: 'POST' })
+  }
+
   // Tarot
   async drawTarotSpread(
     spreadType: 'single' | 'three_card' | 'celtic_cross',
