@@ -416,6 +416,7 @@ export function NatalChartPage() {
         sunSign={sunSign?.nameRu || ''}
         moonSign={moonSign?.nameRu || ''}
         ascSign={ascSign?.nameRu || ''}
+        natalChartLevel={natalChartLevel}
       />
     </div>
   )
