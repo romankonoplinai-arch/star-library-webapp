@@ -6,9 +6,10 @@ import {
   HouseGrid,
   PlanetModal,
   HouseModal,
-  FullAnalysisModal,
   type PlanetData,
 } from '@/components/natal'
+import ChapterPanel from '@/components/natal/ChapterPanel'
+import ChapterModal from '@/components/natal/ChapterModal'
 import { GlassCard, LoadingSpinner, MagicButton } from '@/components/ui'
 import { TabSwitcher } from '@/components/ui/TabSwitcher'
 import { useBackButton, useHaptic, useShare } from '@/hooks'
@@ -27,7 +28,7 @@ export function NatalChartPage() {
   const [activeTab, setActiveTab] = useState('planets')
   const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null)
   const [selectedHouse, setSelectedHouse] = useState<number | null>(null)
-  const [showFullAnalysis, setShowFullAnalysis] = useState(false)
+  const [selectedChapter, setSelectedChapter] = useState<number | null>(null)
   const [chartData, setChartData] = useState<NatalChartApiResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -43,8 +44,15 @@ export function NatalChartPage() {
   const starDust = useUserStore((s) => s.starDust)
   const setNatalChartUpgrade = useUserStore((s) => s.setNatalChartUpgrade)
 
-  const upgradeCost = 15
-  const canUpgrade = starDust >= upgradeCost && natalChartLevel < 100
+  // Dynamic upgrade cost based on chapter level
+  const getUpgradeCost = () => {
+    if (natalChartLevel < 4) return 20
+    if (natalChartLevel < 8) return 25
+    return 30
+  }
+
+  const upgradeCost = getUpgradeCost()
+  const canUpgrade = starDust >= upgradeCost && natalChartLevel < 12
 
   const handleUpgrade = async () => {
     if (!canUpgrade || upgrading) return
@@ -190,12 +198,12 @@ export function NatalChartPage() {
         animate="visible"
         className="space-y-3"
       >
-        {/* Header - Interactive Book Button */}
+        {/* Header - Open Chapter 0 (Free) */}
         <motion.header variants={staggerItem}>
           <button
             onClick={() => {
               haptic.medium()
-              setShowFullAnalysis(true)
+              setSelectedChapter(0)
             }}
             className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-mystical-gold/20 to-accent-purple/20 border border-mystical-gold/30 hover:border-mystical-gold/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
@@ -206,12 +214,9 @@ export function NatalChartPage() {
                   Натальная карта
                 </span>
               </h1>
-              <span className="ml-1 px-2 py-0.5 bg-mystical-gold/20 rounded-full text-[10px] font-medium text-mystical-gold">
-                Lv.{natalChartLevel}
-              </span>
             </div>
             <p className="text-[10px] text-muted-gray mt-1">
-              Изучай астрологию — открывай секреты звёзд
+              Нажми чтобы узнать что такое натальная карта
             </p>
           </button>
         </motion.header>
@@ -257,16 +262,27 @@ export function NatalChartPage() {
           </GlassCard>
         </motion.div>
 
-        {/* Upgrade Card */}
+        {/* Chapter Panel */}
+        <motion.div variants={staggerItem}>
+          <ChapterPanel
+            currentChapter={natalChartLevel}
+            onChapterClick={(chapter) => {
+              haptic.light()
+              setSelectedChapter(chapter)
+            }}
+          />
+        </motion.div>
+
+        {/* Upgrade Card - Simplified */}
         <motion.div variants={staggerItem}>
           <GlassCard className="p-4 bg-gradient-to-r from-accent-purple/10 to-mystical-gold/10 border-mystical-gold/30">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-lg">📈</span>
-                <span className="font-semibold text-sm">Уровень карты</span>
+                <span className="text-lg">📚</span>
+                <span className="font-semibold text-sm">Прокачка главы</span>
               </div>
               <span className="px-2 py-0.5 bg-mystical-gold/20 rounded-full text-xs font-bold text-mystical-gold">
-                {natalChartLevel}/100
+                Глава {natalChartLevel}/12
               </span>
             </div>
 
@@ -274,7 +290,7 @@ export function NatalChartPage() {
             <div className="h-2 bg-deep-space rounded-full overflow-hidden mb-3">
               <div
                 className="h-full bg-gradient-to-r from-accent-purple to-mystical-gold transition-all duration-500"
-                style={{ width: `${natalChartLevel}%` }}
+                style={{ width: `${(natalChartLevel / 12) * 100}%` }}
               />
             </div>
 
@@ -284,9 +300,11 @@ export function NatalChartPage() {
                 <span>💫</span>
                 <span>Баланс: <span className="text-mystical-gold font-semibold">{starDust} ✨</span></span>
               </div>
-              <div className="text-muted-gray">
-                Следующий: <span className="text-soft-white">{upgradeCost} ✨</span>
-              </div>
+              {natalChartLevel < 12 && (
+                <div className="text-muted-gray">
+                  До главы {natalChartLevel + 1}: <span className="text-soft-white">{upgradeCost} ✨</span>
+                </div>
+              )}
             </div>
 
             {/* Upgrade button */}
@@ -303,18 +321,18 @@ export function NatalChartPage() {
                 <span className="flex items-center justify-center gap-2">
                   <span className="animate-spin">⏳</span> Прокачка...
                 </span>
-              ) : natalChartLevel >= 100 ? (
-                '🏆 Максимальный уровень!'
+              ) : natalChartLevel >= 12 ? (
+                '🏆 Все главы открыты!'
               ) : canUpgrade ? (
-                `⭐ Прокачать до Lv.${natalChartLevel + 1} за ${upgradeCost} ✨`
+                `⭐ Открыть главу ${natalChartLevel + 1} за ${upgradeCost} ✨`
               ) : (
                 `🔒 Нужно ${upgradeCost} ✨ (не хватает ${upgradeCost - starDust})`
               )}
             </button>
 
-            {/* Hint about level */}
+            {/* Hint */}
             <p className="text-[10px] text-muted-gray text-center mt-2">
-              Чем выше уровень, тем глубже анализ твоей карты
+              Каждая глава — это 1000+ символов детального разбора
             </p>
           </GlassCard>
         </motion.div>
@@ -369,25 +387,20 @@ export function NatalChartPage() {
           </GlassCard>
         </motion.div>
 
-        {/* Action Buttons */}
-        <motion.div variants={staggerItem} className="flex gap-3 justify-center">
+        {/* Big Friend Button */}
+        <motion.div variants={staggerItem}>
           <button
             onClick={() => {
               haptic.medium()
-              setShowFullAnalysis(true)
-            }}
-            className="flex-1 py-3 bg-gradient-to-r from-accent-purple to-mystical-gold rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98] text-white"
-          >
-            📖 Подробный разбор
-          </button>
-          <button
-            onClick={() => {
-              haptic.light()
               navigate('/friend')
             }}
-            className="px-5 py-3 bg-green-500/20 hover:bg-green-500/40 rounded-xl text-sm font-medium transition-colors border border-green-500/40 text-green-400"
+            className="w-full py-4 bg-gradient-to-r from-green-500/30 to-emerald-500/30 hover:from-green-500/40 hover:to-emerald-500/40 rounded-2xl text-base font-bold transition-all border-2 border-green-500/50 text-green-300 shadow-lg shadow-green-500/20 active:scale-[0.98]"
           >
-            🎁 +20✨
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-2xl">🎁</span>
+              <span>Рассчитать для друга</span>
+              <span className="px-2 py-0.5 bg-green-400/30 rounded-full text-xs font-bold">+20✨</span>
+            </div>
           </button>
         </motion.div>
 
@@ -409,14 +422,12 @@ export function NatalChartPage() {
         onClose={() => setSelectedHouse(null)}
       />
 
-      {/* Full Analysis Modal */}
-      <FullAnalysisModal
-        isOpen={showFullAnalysis}
-        onClose={() => setShowFullAnalysis(false)}
-        sunSign={sunSign?.nameRu || ''}
-        moonSign={moonSign?.nameRu || ''}
-        ascSign={ascSign?.nameRu || ''}
-        natalChartLevel={natalChartLevel}
+      {/* Chapter Modal */}
+      <ChapterModal
+        isOpen={selectedChapter !== null}
+        onClose={() => setSelectedChapter(null)}
+        chapterNumber={selectedChapter || 0}
+        userLevel={natalChartLevel}
       />
     </div>
   )
